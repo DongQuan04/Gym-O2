@@ -1,0 +1,18 @@
+﻿@model GymOCommunity.Models.Post
+
+<h2>Chi tiết bài viết</h2>
+
+<p><strong>Tiêu đề:</strong> @Model.Title</p>
+<p><strong>Nội dung:</strong></p>
+<p>@Model.Content</p>
+<p><strong>Ngày tạo:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
+
+@if (!string.IsNullOrEmpty(Model.ImageUrl))
+{
+    <p><strong>Hình ảnh:</strong></p>
+    <img src="@Model.ImageUrl" alt="Hình ảnh bài viết" class="img-fluid" style="max-width: 100%; height: auto;" />
+}
+
+<a href="/Posts/Edit/@Model.Id" class="btn btn-warning">Chỉnh sửa</a>
+<a href="/Posts/Delete/@Model.Id" class="btn btn-danger">Xóa</a>
+<a href="/Posts" class="btn btn-secondary">Quay lại</a>

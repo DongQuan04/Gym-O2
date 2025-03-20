@@ -1,0 +1,11 @@
+﻿@model GymOCommunity.Models.Post
+
+<h2>Xóa bài viết</h2>
+
+<p>Bạn có chắc muốn xóa bài viết <strong>@Model.Title</strong> không?</p>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a href="/Posts" class="btn btn-secondary">Hủy</a>
+</form>
