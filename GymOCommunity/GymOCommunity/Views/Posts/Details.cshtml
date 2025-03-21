@@ -9,10 +9,50 @@
 
 @if (!string.IsNullOrEmpty(Model.ImageUrl))
 {
-    <p><strong>Hình ảnh:</strong></p>
-    <img src="@Model.ImageUrl" alt="Hình ảnh bài viết" class="img-fluid" style="max-width: 100%; height: auto;" />
+    <p><strong>Ảnh bài viết:</strong></p>
+    <img src="@Model.ImageUrl" alt="Ảnh bài viết" style="max-width: 300px;" />
 }
+
+<hr />
+
+<h3>Bình luận</h3>
+@if (Model.Comments != null && Model.Comments.Any())
+{
+    <ul class="list-group">
+        @foreach (var comment in Model.Comments)
+        {
+            <li class="list-group-item">
+                <strong>@comment.UserName:</strong> @comment.Content
+                <br />
+                <small class="text-muted">@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>Chưa có bình luận nào.</p>
+}
+
+<form asp-action="AddComment" method="post">
+    <input type="hidden" name="PostId" value="@Model.Id" />
+    <div class="form-group">
+        <label for="commentContent">Thêm bình luận:</label>
+        <textarea name="Content" class="form-control" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Gửi bình luận</button>
+</form>
+
+<hr />
 
 <a href="/Posts/Edit/@Model.Id" class="btn btn-warning">Chỉnh sửa</a>
 <a href="/Posts/Delete/@Model.Id" class="btn btn-danger">Xóa</a>
 <a href="/Posts" class="btn btn-secondary">Quay lại</a>
+
+
+<!-- lasted cmt -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        window.scrollTo(0, document.body.scrollHeight);
+    });
+</script>

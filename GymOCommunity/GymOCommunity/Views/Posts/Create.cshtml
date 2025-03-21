@@ -2,7 +2,8 @@
 
 <h2>Tạo bài viết mới</h2>
 
-<form asp-action="Create">
+<form asp-action="Create" enctype="multipart/form-data">
+    <!-- Thêm enctype -->
     <div class="form-group">
         <label asp-for="Title" class="control-label"></label>
         <input asp-for="Title" class="form-control" />
@@ -16,9 +17,8 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="ImageUrl" class="control-label"></label>
-        <input asp-for="ImageUrl" class="form-control" />
-        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+        <label class="control-label">Chọn ảnh</label>
+        <input type="file" name="ImageFile" class="form-control" accept="image/*" />
     </div>
 
     <button type="submit" class="btn btn-primary">Lưu</button>

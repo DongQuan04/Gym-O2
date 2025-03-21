@@ -205,4 +205,9 @@ body {
     }
 }
 
-/* Mặc định ẩn nội dung khi trang tải */
+/* Không gạch chân của các liên kết */
+
+a {
+    text-decoration: none;
+}
+

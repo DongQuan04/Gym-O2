@@ -5,13 +5,24 @@
 
 <table class="table">
     <tr>
+        <th>Hình ảnh</th> <!-- Thêm cột Hình ảnh -->
         <th>Tiêu đề</th>
         <th>Ngày tạo</th>
         <th>Hành động</th>
     </tr>
     @foreach (var post in Model)
-    {    
+    {
         <tr>
+            <td>
+                @if (!string.IsNullOrEmpty(post.ImageUrl))
+                {
+                    <img src="@post.ImageUrl" alt="Ảnh bài viết" width="100" height="100" />
+                }
+                else
+                {
+                    <span>Không có ảnh</span>
+                }
+            </td>
             <td>@post.Title</td>
             <td>@post.CreatedAt.ToString("dd/MM/yyyy")</td>
             <td>

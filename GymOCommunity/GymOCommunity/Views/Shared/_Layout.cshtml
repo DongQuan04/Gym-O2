@@ -22,7 +22,7 @@
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center" href="#">
                     <img src="~/images/logo.png" alt="Gym-O Community" width="40" height="40" class="me-2">
-                    <span class="fw-bold text-primary">Gym-O Community</span>
+                    <a href="@Url.Action("Index", "Home")" class="fw-bold text-primary">Gym-O Community</a>                    
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,9 +40,20 @@
                             <a class="nav-link" href="#">Bài tập Gym</a>
                         </li>
                     </ul>
-                    <div class="ms-3">
-                        <a href="/Identity/Account/Login" class="btn btn-outline-primary me-2">Đăng nhập</a>
-                        <a href="/Identity/Account/Register" class="btn btn-danger">Đăng ký</a>
+                    <<div class="ms-3">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <span class="navbar-text text-light me-2">Xin chào, @User.Identity.Name!</span>
+                            <form method="post" asp-area="Identity" asp-page="/Account/Logout">
+                                <button type="submit" class="btn btn-outline-danger">Đăng xuất</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a href="/Identity/Account/Login" class="btn btn-outline-primary me-2">Đăng nhập</a>
+                            <a href="/Identity/Account/Register" class="btn btn-danger">Đăng ký</a>
+                        }
+                    </div>
                     </div>
                 </div>
             </div>
