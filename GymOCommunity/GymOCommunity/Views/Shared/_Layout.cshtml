@@ -1,46 +1,85 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GymOCommunity</title>
-    <script type="importmap"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/GymOCommunity.styles.css" asp-append-version="true" />
+    <style>
+        /* Hover effect cho navbar items */
+        .navbar-nav .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background-color: #0d6efd;
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #0d6efd !important;
+        }
+
+    
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+    </style>
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-            <<button id="themeToggle" class="btn btn-outline-light">
-                <span id="themeIcon">🌙</span>
-            </button>
-
-            </button>
-
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center" href="#">
+                <button id="themeToggle" class="btn btn-outline-light me-3">
+                    <span id="themeIcon">🌙</span>
+                </button>
+
+                <a class="navbar-brand d-flex align-items-center" href="@Url.Action("Index", "Home")">
                     <img src="~/images/logo.png" alt="Gym-O Community" width="40" height="40" class="me-2">
-                    <a href="@Url.Action("Index", "Home")" class="fw-bold text-primary">Gym-O Community</a>                    
+                    <span class="fw-bold text-primary">Gym-O Community</span>
                 </a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#">Trang chủ</a>
+                            <a class="nav-link active" href="@Url.Action("Index", "Home")">Trang chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Diễn đàn</a>
+                            <a class="nav-link" href="@Url.Action("Index", "Posts")">Diễn đàn</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="https://www.rophim.me/xem-phim/an-danh.lhA6n4Pu?ver=1&ss=2&ep=9">Bài tập Gym</a>
+                            <a class="nav-link" href="@Url.Action("Index", "Exercise")">Bài tập Gym</a>
                         </li>
                     </ul>
-                    <<div class="ms-3">
+
+                    <div class="ms-3 d-flex align-items-center">
                         @if (User.Identity.IsAuthenticated)
                         {
                             <span class="navbar-text text-light me-2">Xin chào, @User.Identity.Name!</span>
@@ -54,25 +93,24 @@
                             <a href="/Identity/Account/Register" class="btn btn-danger">Đăng ký</a>
                         }
                     </div>
-                    </div>
                 </div>
             </div>
         </nav>
-
-
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted mt-5">
         <div class="container">
             &copy; 2025 - GymOCommunity - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-    <footer class="fade-in text-center">
+
+    <footer class="fade-in text-center text-muted small">
         <p>&copy; 2025 Gym-O Community. All rights reserved.</p>
     </footer>
 
@@ -82,6 +120,3 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-
-
-

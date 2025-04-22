@@ -6,6 +6,7 @@ using GymOCommunity.Data;
 
 namespace GymOCommunity.Controllers
 {
+   
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -17,7 +18,7 @@ namespace GymOCommunity.Controllers
             _context = context;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult Dashboard()
         {
             // Đếm tổng số
@@ -35,7 +36,7 @@ namespace GymOCommunity.Controllers
 
             ViewBag.RecentActivities = recentActivities;
 
-            // Dữ liệu tăng trưởng bài viết theo tháng (ĐÃ SỬA)
+            // Dữ liệu tăng trưởng bài viết theo tháng
             var postGrowth = _context.Posts
                 .GroupBy(p => new {
                     Year = p.CreatedAt.Year,
