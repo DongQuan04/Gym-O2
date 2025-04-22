@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Newtonsoft.Json
+@{
     ViewData["Title"] = "Dashboard";
 }
 
@@ -8,7 +9,7 @@
             <div class="card text-white bg-primary mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Users</h5>
-                    <p class="card-text display-4">1,234</p>
+                    <p class="card-text display-4">@ViewBag.UserCount</p>
                 </div>
             </div>
         </div>
@@ -16,7 +17,7 @@
             <div class="card text-white bg-success mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Posts</h5>
-                    <p class="card-text display-4">567</p>
+                    <p class="card-text display-4">@ViewBag.PostCount</p>
                 </div>
             </div>
         </div>
@@ -24,7 +25,7 @@
             <div class="card text-white bg-warning mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Comments</h5>
-                    <p class="card-text display-4">2,345</p>
+                    <p class="card-text display-4">@ViewBag.CommentCount</p>
                 </div>
             </div>
         </div>
@@ -32,7 +33,7 @@
             <div class="card text-white bg-danger mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Reports</h5>
-                    <p class="card-text display-4">45</p>
+                    <p class="card-text display-4">@ViewBag.ReportCount</p>
                 </div>
             </div>
         </div>
@@ -51,9 +52,10 @@
                 <div class="card-body">
                     <h5 class="card-title">Recent Activities</h5>
                     <ul class="list-group">
-                        <li class="list-group-item">User A registered</li>
-                        <li class="list-group-item">User B posted a comment</li>
-                        <li class="list-group-item">User C liked a post</li>
+                        @foreach (var activity in ViewBag.RecentActivities as List<string>)
+                        {
+                            <li class="list-group-item">@activity</li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -63,18 +65,36 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var myChart = new Chart(ctx, {
+    const postGrowth = @Html.Raw(JsonConvert.SerializeObject(ViewBag.PostGrowth));
+    const labels = postGrowth.map(x => x.Month);
+    const data = postGrowth.map(x => x.Count);
+
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: labels,
             datasets: [{
-                label: 'User Growth',
-                data: [12, 19, 3, 5, 2, 3],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
+                label: 'Post Growth',
+                data: data,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
             }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Monthly Post Growth'
+                }
+            }
         }
     });
 </script>

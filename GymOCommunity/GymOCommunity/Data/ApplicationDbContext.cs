@@ -11,6 +11,8 @@ namespace GymOCommunity.Data
 
         public DbSet<Post> Posts { get; set; } // Bảng Post trong database
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Report> Reports { get; set; }
+
 
     }
 }
