@@ -1,35 +1,63 @@
 ﻿@model GymOCommunity.Models.Post
+@{
+    ViewData["Title"] = "Chỉnh sửa bài viết";
+}
 
-<h2>Chỉnh sửa bài viết</h2>
+<h2 class="text-center mb-4">@ViewData["Title"]</h2>
 
-<form asp-action="Edit" enctype="multipart/form-data">
+<form asp-action="Edit" enctype="multipart/form-data" class="p-4 shadow rounded bg-light" style="max-width: 600px; margin: auto;">
     <input type="hidden" asp-for="Id" />
+    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
 
-    <div class="form-group">
-        <label asp-for="Title" class="control-label"></label>
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label fw-bold"></label>
         <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
+        <span asp-validation-for="Title" class="text-danger small"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Content" class="control-label"></label>
-        <textarea asp-for="Content" class="form-control"></textarea>
-        <span asp-validation-for="Content" class="text-danger"></span>
+    <div class="mb-3">
+        <label asp-for="Content" class="form-label fw-bold"></label>
+        <textarea asp-for="Content" rows="6" class="form-control"></textarea>
+        <span asp-validation-for="Content" class="text-danger small"></span>
     </div>
 
-    <div class="form-group">
-        <label class="control-label">Ảnh hiện tại:</label>
-        <br />
-        @if (!string.IsNullOrEmpty(Model.ImageUrl))
-        {
-            <img src="@Model.ImageUrl" alt="Ảnh bài viết" style="max-width: 200px;" />
-        }
-    </div>
+    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+    {
+        <div class="mb-3">
+            <label class="form-label fw-bold">Ảnh hiện tại:</label>
+            <br />
+            <img src="@Model.ImageUrl" alt="Ảnh bài viết" class="img-thumbnail mb-2" style="max-width: 300px;" />
+        </div>
+    }
 
-    <div class="form-group">
-        <label class="control-label">Chọn ảnh mới (nếu muốn thay đổi):</label>
+    <div class="mb-3">
+        <label class="form-label fw-bold">Chọn ảnh mới (nếu muốn thay đổi):</label>
         <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+        <img id="previewImage" src="#" alt="Xem trước ảnh mới" class="img-thumbnail mt-2 d-none" style="max-width: 300px;" />
     </div>
 
-    <button type="submit" class="btn btn-primary">Lưu</button>
+    <button type="submit" class="btn btn-primary w-100">Lưu thay đổi</button>
 </form>
+
+@section Scripts {
+    <script>
+        document.querySelector('input[name="ImageFile"]').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('previewImage');
+
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                    preview.style.opacity = 0;
+                    setTimeout(() => preview.style.opacity = 1, 50);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = "#";
+                preview.classList.add('d-none');
+            }
+        });
+    </script>
+}

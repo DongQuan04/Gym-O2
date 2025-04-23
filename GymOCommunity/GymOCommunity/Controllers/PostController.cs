@@ -1,46 +1,57 @@
 ﻿using GymOCommunity.Data;
 using GymOCommunity.Models;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace GymOCommunity.Controllers
 {
+    [Authorize]
     public class PostsController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public PostsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+        public PostsController(
+            ApplicationDbContext context,
+            IWebHostEnvironment webHostEnvironment,
+            UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
             var posts = _context.Posts.ToList();
             return View(posts);
         }
 
+        [AllowAnonymous]
         public IActionResult Details(int id)
         {
             var post = _context.Posts
-                .Include(p => p.Comments) // Bình luận được lấy cùng với bài post
+                .Include(p => p.Comments)
                 .FirstOrDefault(p => p.Id == id);
 
             if (post == null)
-            {
                 return NotFound();
-            }
 
             return View(post);
         }
-
-
 
         public IActionResult Create()
         {
@@ -49,135 +60,195 @@ namespace GymOCommunity.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Post post, IFormFile ImageFile)
+        public async Task<IActionResult> Create(Post post)
         {
+            // Lấy UserId trước khi kiểm tra ModelState
+            var currentUserId = _userManager.GetUserId(User);
+            Debug.WriteLine($"DEBUG [Create Post] - Current UserId: {currentUserId}");
+
+            // Gán UserId ngay lập tức
+            post.UserId = currentUserId;
+            post.CreatedAt = DateTime.Now;
+
+            // Kiểm tra ModelState sau khi đã gán UserId
             if (!ModelState.IsValid)
             {
+                foreach (var entry in ModelState)
+                {
+                    foreach (var error in entry.Value.Errors)
+                    {
+                        Debug.WriteLine($"Model Error - {entry.Key}: {error.ErrorMessage}");
+                    }
+                }
                 return View(post);
             }
 
-            if (ImageFile != null && ImageFile.Length > 0)
+            // Xử lý ảnh
+            if (post.ImageFile != null && post.ImageFile.Length > 0)
             {
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                Directory.CreateDirectory(uploadsFolder);
+
+                string uniqueFileName = Guid.NewGuid() + "_" + post.ImageFile.FileName;
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    ImageFile.CopyTo(fileStream);
+                    await post.ImageFile.CopyToAsync(stream);
                 }
-
                 post.ImageUrl = "/uploads/" + uniqueFileName;
             }
 
             _context.Posts.Add(post);
-            _context.SaveChanges();
-
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
+
 
         public IActionResult Edit(int id)
         {
             var post = _context.Posts.Find(id);
-            if (post == null) return NotFound();
+            if (post == null)
+                return NotFound();
+
+            if (!IsAuthorized(post.UserId))
+                return Forbid();
+
             return View(post);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Post post, IFormFile ImageFile)
+        public async Task<IActionResult> Edit(Post post)
         {
+            var existingPost = await _context.Posts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == post.Id);
+
+            if (existingPost == null)
+                return NotFound();
+
+            if (!IsAuthorized(existingPost.UserId))
+                return Forbid();
+
             if (!ModelState.IsValid)
+                return View(post);
+
+            if (post.ImageFile != null && post.ImageFile.Length > 0)
             {
+                string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+                string uniqueFileName = $"{Guid.NewGuid()}_{post.ImageFile.FileName}";
+                string filePath = Path.Combine(uploadsDir, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await post.ImageFile.CopyToAsync(stream);
+                }
+                post.ImageUrl = $"/uploads/{uniqueFileName}";
+
+                if (!string.IsNullOrEmpty(existingPost.ImageUrl))
+                {
+                    string oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, existingPost.ImageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+            }
+            else
+            {
+                post.ImageUrl = existingPost.ImageUrl;
+            }
+
+            post.UserId = existingPost.UserId;
+            post.CreatedAt = existingPost.CreatedAt;
+
+            try
+            {
+                _context.Update(post);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Lỗi khi cập nhật bài viết: {ex.Message}");
+                ModelState.AddModelError("", "Đã xảy ra lỗi khi cập nhật bài viết.");
                 return View(post);
             }
-
-            if (ImageFile != null && ImageFile.Length > 0)
-            {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    ImageFile.CopyTo(fileStream);
-                }
-
-                post.ImageUrl = "/uploads/" + uniqueFileName;
-            }
-
-            _context.Update(post);
-            _context.SaveChanges();
-            return RedirectToAction("Index");
         }
 
         public IActionResult Delete(int id)
         {
             var post = _context.Posts.Find(id);
-            if (post == null) return NotFound();
+            if (post == null)
+                return NotFound();
+
+            if (!IsAuthorized(post.UserId))
+                return Forbid();
+
             return View(post);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null)
+                return NotFound();
+
+            if (!IsAuthorized(post.UserId))
+                return Forbid();
+
+            try
+            {
+                if (!string.IsNullOrEmpty(post.ImageUrl))
+                {
+                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, post.ImageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+
+                _context.Posts.Remove(post);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Lỗi khi xóa bài viết: {ex.Message}");
+                ModelState.AddModelError("", "Đã xảy ra lỗi khi xóa bài viết.");
+                return View("Delete", post);
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddComment(int postId, string content)
+        public async Task<IActionResult> AddComment(int postId, string content)
         {
-            Console.WriteLine($"📌 DEBUG: Nhận comment - PostId: {postId}, Content: {content}");
-
-            var post = _context.Posts.Find(postId);
+            var post = await _context.Posts.FindAsync(postId);
             if (post == null)
-            {
-                Console.WriteLine("⚠️ DEBUG: Không tìm thấy bài viết!");
                 return NotFound();
-            }
-
-            string userName = User.Identity.IsAuthenticated ? User.Identity.Name : "Anonymous";
-            string userId = User.Identity.IsAuthenticated ? GetUserId(User.Identity.Name) : "Anonymous";
-
-            Console.WriteLine($"👤 DEBUG: Người dùng - UserName: {userName}, UserId: {userId}");
 
             var comment = new Comment
             {
                 PostId = postId,
                 Content = content,
                 CreatedAt = DateTime.Now,
-                UserName = userName,
-                UserId = userId
+                UserName = User.Identity?.Name ?? "Anonymous",
+                UserId = _userManager.GetUserId(User) ?? "Anonymous"
             };
 
             _context.Comments.Add(comment);
-            _context.SaveChanges();
-
-            Console.WriteLine("✅ DEBUG: Bình luận đã được lưu!");
-
+            await _context.SaveChangesAsync();
             return RedirectToAction("Details", new { id = postId });
         }
 
-        private string GetUserId(string userName)
+        private bool IsAuthorized(string postOwnerId)
         {
-            var user = _context.Users.FirstOrDefault(u => u.UserName == userName);
-            return user != null ? user.Id : "Anonymous";
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
-        {
-            var post = _context.Posts.Find(id);
-            if (post == null) return NotFound();
-
-            if (!string.IsNullOrEmpty(post.ImageUrl))
-            {
-                string filePath = Path.Combine(_webHostEnvironment.WebRootPath, post.ImageUrl.TrimStart('/'));
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
-            }
-
-            _context.Posts.Remove(post);
-            _context.SaveChanges();
-            return RedirectToAction("Index");
+            var currentUserId = _userManager.GetUserId(User);
+            var isAdmin = User.IsInRole("Admin");
+            return isAdmin || postOwnerId == currentUserId;
         }
     }
 }

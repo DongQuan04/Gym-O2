@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace GymOCommunity.Models
 {
@@ -19,10 +20,14 @@ namespace GymOCommunity.Models
         public string? ImageUrl { get; set; } // Đường dẫn ảnh trong server
 
         [NotMapped] // Không lưu vào DB
-        [Required(ErrorMessage = "Ảnh không được để trống")]
+      
         public IFormFile? ImageFile { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+
+        public string? UserId { get; set; }
+
 
         // 🔹 Danh sách bình luận (Thêm vào đây)
         public List<Comment> Comments { get; set; } = new List<Comment>();
