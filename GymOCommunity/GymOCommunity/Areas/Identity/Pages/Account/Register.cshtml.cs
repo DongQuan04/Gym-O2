@@ -1,15 +1,6 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
-
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,11 +12,12 @@ using Microsoft.Extensions.Logging;
 
 namespace GymOCommunity.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager; // Thêm RoleManager
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
@@ -33,14 +25,14 @@ namespace GymOCommunity.Areas.Identity.Pages.Account
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager, // Thêm RoleManager
+            RoleManager<IdentityRole> roleManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
             _userManager = userManager;
-            _roleManager = roleManager; // Khởi tạo RoleManager
+            _roleManager = roleManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
@@ -88,22 +80,21 @@ namespace GymOCommunity.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    // Tạo role "User" nếu chưa tồn tại
+                    // Tạo role mặc định nếu chưa có
                     if (!await _roleManager.RoleExistsAsync("User"))
                     {
                         await _roleManager.CreateAsync(new IdentityRole("User"));
                     }
 
-                    // Gán role mặc định là "User"
                     await _userManager.AddToRoleAsync(user, "User");
 
                     var userId = await _userManager.GetUserIdAsync(user);
@@ -115,8 +106,18 @@ namespace GymOCommunity.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    // Gửi email với layout đẹp
+                    string body = $@"
+                        <div style='font-family:Arial,sans-serif; max-width:600px; margin:auto; padding:20px; border:1px solid #ddd; border-radius:10px;'>
+                            <h2 style='color:#2c3e50;'>Chào mừng đến với GymOCommunity! 💪</h2>
+                            <p>Chúng tôi rất vui khi bạn tham gia cùng cộng đồng.</p>
+                            <p>Vui lòng xác nhận tài khoản của bạn bằng cách nhấn vào nút bên dưới:</p>
+                            <a href='{HtmlEncoder.Default.Encode(callbackUrl)}' 
+                               style='display:inline-block; padding:10px 20px; margin-top:10px; background-color:#3498db; color:white; text-decoration:none; border-radius:5px;'>Xác nhận tài khoản</a>
+                            <p style='margin-top:30px; color:#888;'>Nếu bạn không tạo tài khoản, hãy bỏ qua email này.</p>
+                        </div>";
+
+                    await _emailSender.SendEmailAsync(Input.Email, "Xác nhận tài khoản GymOCommunity", body);
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
@@ -146,8 +147,7 @@ namespace GymOCommunity.Areas.Identity.Pages.Account
             catch
             {
                 throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+                    $"Ensure that '{nameof(IdentityUser)}' is not abstract and has a parameterless constructor.");
             }
         }
 
