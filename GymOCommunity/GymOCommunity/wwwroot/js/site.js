@@ -1,37 +1,27 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Write your JavaScript code.
-
-document.addEventListener("DOMContentLoaded", function () {
+﻿document.addEventListener("DOMContentLoaded", function () {
     const themeToggle = document.getElementById("themeToggle");
     const themeIcon = document.getElementById("themeIcon");
+    const body = document.body;
 
     if (!themeToggle || !themeIcon) return;
 
-    function updateThemeIcon() {
-        if (document.body.classList.contains("dark-mode")) {
-            themeIcon.textContent = "☀️"; // Biểu tượng mặt trời cho Light Mode
+    function setTheme(theme) {
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            themeIcon.textContent = "☀️";
         } else {
-            themeIcon.textContent = "🌙"; // Biểu tượng mặt trăng cho Dark Mode
+            body.classList.remove("dark-mode");
+            themeIcon.textContent = "🌙";
         }
     }
 
-    themeToggle.addEventListener("click", function () {
-        document.body.classList.toggle("dark-mode");
-        localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
-        updateThemeIcon();
+    themeToggle.addEventListener("click", () => {
+        const currentTheme = body.classList.contains("dark-mode") ? "dark" : "light";
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        localStorage.setItem("theme", newTheme);
+        setTheme(newTheme);
     });
 
-    if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark-mode");
-    }
-    updateThemeIcon();
+    const savedTheme = localStorage.getItem("theme") || "light";
+    setTheme(savedTheme);
 });
-
-
-
-
-
-
-

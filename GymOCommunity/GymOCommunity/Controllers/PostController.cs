@@ -62,15 +62,15 @@ namespace GymOCommunity.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Post post)
         {
-            // Lấy UserId trước khi kiểm tra ModelState
+            // Lấy UserId trước khi check ModelState
             var currentUserId = _userManager.GetUserId(User);
             Debug.WriteLine($"DEBUG [Create Post] - Current UserId: {currentUserId}");
 
-            // Gán UserId ngay lập tức
+            // Gắn UserId
             post.UserId = currentUserId;
             post.CreatedAt = DateTime.Now;
 
-            // Kiểm tra ModelState sau khi đã gán UserId
+            // Check ModelState khi đã gán UserId
             if (!ModelState.IsValid)
             {
                 foreach (var entry in ModelState)

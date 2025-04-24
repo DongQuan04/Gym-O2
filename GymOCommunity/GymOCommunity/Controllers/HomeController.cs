@@ -27,7 +27,7 @@ namespace GymOCommunity.Controllers
             ViewBag.CommentCount = _context.Comments.Count();
             ViewBag.ReportCount = _context.Reports.Count();
 
-            // Lấy danh sách hoạt động gần đây (ví dụ: 5 bài post mới nhất)
+            // Lấy danh sách hoạt động gần đây
             var recentActivities = _context.Posts
                 .OrderByDescending(p => p.CreatedAt)
                 .Take(5)
@@ -49,9 +49,9 @@ namespace GymOCommunity.Controllers
                 })
                 .OrderBy(x => x.Year)
                 .ThenBy(x => x.Month)
-                .AsEnumerable() // Chuyển sang client-side để xử lý định dạng
+                .AsEnumerable() // Chuyển client-side để xử lý định dạng
                 .Select(x => new {
-                    Month = $"{x.Month:00}/{x.Year}", // Format ở phía client
+                    Month = $"{x.Month:00}/{x.Year}", // Định dạng phía client
                     x.Count
                 })
                 .ToList();

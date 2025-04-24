@@ -1,4 +1,4 @@
-﻿namespace GymOCommunity // Đảm bảo đặt đúng namespace của dự án bạn
+﻿namespace GymOCommunity 
 {
     public class EmailSettings
     {

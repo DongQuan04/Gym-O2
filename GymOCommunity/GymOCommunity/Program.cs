@@ -23,13 +23,14 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders();
 
-// ⚠️ THÊM VÀO DÒNG NÀY NGAY SAU ĐÓ:
+// (sửa lỗi redirect sai URL Login)
 builder.Services.ConfigureApplicationCookie(options =>
 {
+    options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 
-// Thêm Razor Pages và MVC support
+// Razor Pages và MVC support
 builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
 
@@ -58,7 +59,7 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-// Tạo role và tài khoản admin mặc định
+// Rold Admin
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -70,8 +71,8 @@ using (var scope = app.Services.CreateScope())
         await roleManager.CreateAsync(new IdentityRole(roleName));
     }
 
-    var adminEmail = "admin@example.com";
-    var adminPassword = "Admin@123"; // Nhớ đổi sau này nếu đưa vào production
+    var adminEmail = "quandong2004@gmail.com";
+    var adminPassword = "Admin@123";
 
     var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
     if (existingAdmin == null)

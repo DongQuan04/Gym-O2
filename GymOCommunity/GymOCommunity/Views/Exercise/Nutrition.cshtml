@@ -1,0 +1,220 @@
+﻿@{
+    ViewBag.Title = "Chế độ dinh dưỡng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 text-white">
+    <h2 class="text-3xl font-bold mb-4">🔧 Tùy chỉnh Chế độ Dinh dưỡng</h2>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <input type="number" id="height" placeholder="Chiều cao (cm)" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <input type="number" id="weight" placeholder="Cân nặng (kg)" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <input type="number" id="age" placeholder="Tuổi" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <select id="gender" class="form-select">
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select id="goal" class="form-select">
+                <option value="Tăng cơ">Tăng cơ</option>
+                <option value="Giảm mỡ">Giảm mỡ</option>
+                <option value="Giữ cân">Giữ cân</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <input type="number" id="sessions" placeholder="Buổi tập/tuần" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <select id="bodyType" class="form-select">
+                <option value="Ectomorph">Ectomorph</option>
+                <option value="Mesomorph">Mesomorph</option>
+                <option value="Endomorph">Endomorph</option>
+            </select>
+        </div>
+        <div class="col-md-12 text-center mt-3">
+            <button onclick="generatePlan()" class="btn btn-warning text-dark fw-bold px-4">Xem Gợi ý Dinh dưỡng</button>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <div>
+        <h3 class="text-2xl font-bold mb-3">🥗 Gợi ý thực đơn</h3>
+        <div class="row g-4" id="mealSuggestion">
+            <div class="col-md-6">
+                <div class="card bg-dark text-white p-3 rounded-4">
+                    <h5>🍳 Bữa sáng</h5>
+                    <p id="breakfast"></p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-dark text-white p-3 rounded-4">
+                    <h5>🍱 Bữa trưa</h5>
+                    <p id="lunch"></p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-dark text-white p-3 rounded-4">
+                    <h5>🍽️ Bữa tối</h5>
+                    <p id="dinner"></p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-dark text-white p-3 rounded-4">
+                    <h5>🥜 Snack</h5>
+                    <p id="snack"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h3 class="text-2xl font-bold mb-3">📊 Tổng kết dinh dưỡng</h3>
+        <div class="card bg-dark text-white p-4 rounded-4">
+            <p><strong>TDEE:</strong> <span id="tdeeValue">--</span> kcal/ngày</p>
+            <p><strong>Protein:</strong> <span id="proteinValue">--</span></p>
+            <p><strong>Carb:</strong> <span id="carbValue">--</span></p>
+            <p><strong>Fat:</strong> <span id="fatValue">--</span></p>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        const mealPlans = {
+            "Tăng cơ": {
+                breakfast: "Yến mạch + whey + chuối + bơ đậu phộng",
+                lunch: "Cơm gạo lứt + ức gà áp chảo + rau củ luộc",
+                dinner: "Nui nguyên cám + bò xào nấm + trứng luộc",
+                snack: "Whey shake + hạt điều + chuối"
+            },
+            "Giảm mỡ": {
+                breakfast: "Trứng luộc + bông cải xanh + trái cây ít đường",
+                lunch: "Cá hồi hấp + salad rau xanh + khoai lang",
+                dinner: "Ức gà + súp lơ + nấm luộc",
+                snack: "Hạnh nhân + sữa chua không đường"
+            },
+            "Giữ cân": {
+                breakfast: "Bánh mì nguyên cám + trứng ốp + sữa chua Hy Lạp",
+                lunch: "Cơm trắng vừa đủ + thịt nạc + canh rau cải",
+                dinner: "Trứng chiên không dầu + khoai lang + salad trộn",
+                snack: "Táo + bơ hạt + trứng luộc"
+            }
+        };
+
+        function generatePlan() {
+            const height = parseFloat(document.getElementById("height").value);
+            const weight = parseFloat(document.getElementById("weight").value);
+            const age = parseInt(document.getElementById("age").value);
+            const gender = document.getElementById("gender").value;
+            const goal = document.getElementById("goal").value;
+            const sessions = parseInt(document.getElementById("sessions").value);
+            const bodyType = document.getElementById("bodyType").value;
+
+            // Tính BMR
+            let BMR = (gender === "Nam") ?
+                10 * weight + 6.25 * height - 5 * age + 5 :
+                10 * weight + 6.25 * height - 5 * age - 161;
+
+            // Hệ số vận động
+            const activityFactor = sessions <= 2 ? 1.3 : sessions <= 4 ? 1.55 : 1.75;
+
+            let TDEE = BMR * activityFactor;
+
+            // Điều chỉnh theo mục tiêu
+            if (goal === "Tăng cơ") TDEE += 300;
+            else if (goal === "Giảm mỡ") TDEE -= 300;
+
+            // Điều chỉnh theo loại cơ thể
+            let proteinRatio = 0.3;
+            let carbRatio = 0.5;
+            let fatRatio = 0.2;
+
+            if (bodyType === "Ectomorph") {
+                carbRatio = 0.55; proteinRatio = 0.25; fatRatio = 0.2;
+            } else if (bodyType === "Endomorph") {
+                carbRatio = 0.4; proteinRatio = 0.35; fatRatio = 0.25;
+            }
+
+            const proteinGrams = Math.round((TDEE * proteinRatio) / 4);
+            const carbGrams = Math.round((TDEE * carbRatio) / 4);
+            const fatGrams = Math.round((TDEE * fatRatio) / 9);
+
+            // Hiển thị thực đơn
+            const plan = mealPlans[goal];
+            document.getElementById("breakfast").innerText = plan.breakfast;
+            document.getElementById("lunch").innerText = plan.lunch;
+            document.getElementById("dinner").innerText = plan.dinner;
+            document.getElementById("snack").innerText = plan.snack;
+
+            // Hiển thị TDEE và Macro
+            document.getElementById("tdeeValue").innerText = Math.round(TDEE);
+            document.getElementById("proteinValue").innerText = proteinGrams + "g";
+            document.getElementById("carbValue").innerText = carbGrams + "g";
+            document.getElementById("fatValue").innerText = fatGrams + "g";
+        }
+    </script>
+}
+
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>⏰ HOẠT ĐỘNG CỘNG ĐỒNG</h3>
+                <p>📅 Hoạt động 24/7 – Kết nối, chia sẻ, học hỏi mọi lúc, mọi nơi!</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>📍 KẾT NỐI VỚI CHÚNG TÔI</h3>
+                <p><i class="fas fa-envelope"></i> info@GymO.com.vn</p>
+                <p><i class="fas fa-phone"></i> 0967 355 455</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>📚 THÔNG TIN</h3>
+                <p><a href="#">Tham gia đội ngũ Admin</a></p>
+                <p><a href="#">Về chúng tôi</a></p>
+                <p><a href="#">Điều khoản & Điều kiện</a></p>
+                <p><a href="#">Chính sách bảo mật</a></p>
+            </div>
+
+            <div class="footer-social">
+                <p>THEO DÕI CỘNG ĐỒNG</p>
+
+                <!-- Link đến Facebook, Instagram, YouTube -->
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/groups/1356980198758964" target="_blank">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="https://www.instagram.com/YOUR_INSTAGRAM" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.youtube.com/%40Gym-OCommunity" target="_blank" title="Kênh YouTube Gym-O Community">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+
+                </div>
+
+
+
+                <!-- Thêm widget Facebook -->
+                <div class="fb-page" data-href="https://www.facebook.com/YOUR_PAGE"
+                     data-tabs="" data-width="300" data-height="150" data-small-header="false"
+                     data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</footer>

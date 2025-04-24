@@ -1,7 +1,11 @@
-﻿html {
+﻿/* ============================================
+   Base Styles
+============================================ */
+html {
     font-size: 14px;
     position: relative;
     min-height: 100%;
+    scroll-behavior: smooth;
 }
 
 @media (min-width: 768px) {
@@ -10,6 +14,16 @@
     }
 }
 
+body {
+    margin-bottom: 60px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #fff;
+}
+
+/* ============================================
+   Buttons
+============================================ */
 .btn:focus,
 .btn:active:focus,
 .btn-link.nav-link:focus,
@@ -18,37 +32,37 @@
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-body {
-    margin-bottom: 60px;
+.btn-primary {
+    background-color: #007BFF;
+    border-color: #007BFF;
+    transition: all 0.3s ease;
 }
 
-/* Placeholder căn chỉnh */
-.form-floating > .form-control-plaintext::placeholder,
-.form-floating > .form-control::placeholder {
-    color: var(--bs-secondary-color);
-    text-align: end;
-}
+    .btn-primary:hover {
+        background-color: #ff4500;
+        transform: scale(1.05);
+    }
 
-.form-floating > .form-control-plaintext:focus::placeholder,
-.form-floating > .form-control:focus::placeholder {
-    text-align: start;
-}
-
-/* Navbar */
+/* ============================================
+   Navbar
+============================================ */
 .custom-navbar {
-    background: linear-gradient(45deg, #000, #222);
+    background: linear-gradient(to right, #000000, #2a2a2a, #444444);
     padding: 10px 0;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
     .custom-navbar .nav-link {
         color: #fff !important;
         font-weight: bold;
-        transition: 0.3s;
+        transition: background-color 0.3s;
     }
 
         .custom-navbar .nav-link:hover {
-            color: #f00 !important;
+            background-color: #1f1f1f;
         }
 
     .custom-navbar .btn-outline-light {
@@ -65,7 +79,9 @@ body {
             background-color: #c00;
         }
 
-/* Hero Section */
+/* ============================================
+   Hero Section
+============================================ */
 .hero-section {
     height: 90vh;
     background: url('/images/gym-bg.jpg') center/cover no-repeat;
@@ -84,13 +100,12 @@ body {
     color: white;
 }
 
-/* Hiệu ứng chữ */
 .hero-section h1 span {
-    color: #f00 !important;
+    color: #f00;
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     display: inline-block;
-    overflow: hidden;
     white-space: nowrap;
+    overflow: hidden;
     width: 100%;
     animation: typing 3s steps(20) forwards;
 }
@@ -105,88 +120,179 @@ body {
     }
 }
 
-/* Button */
-.btn-primary {
-    background-color: #007BFF;
-    border-color: #007BFF;
-    transition: all 0.3s ease;
-}
-
-    .btn-primary:hover {
-        background-color: #ff4500;
-        transform: scale(1.05);
-        transition: all 0.3s ease-in-out;
-    }
-
-/* Card */
+/* ============================================
+   Cards
+============================================ */
 .card {
     background-color: #1e1e1e;
     color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .card .btn {
+        background-color: #007bff;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+
+        .card .btn:hover {
+            background-color: #0056b3;
+        }
 
 .card-title,
 .card-text {
-    color: #fff !important;
+    color: #fff;
 }
 
-.card .btn {
-    background-color: #007bff;
+/* ============================================
+   Footer
+============================================ */
+.footer {
+    width: 100%;
+    background-color: #111;
     color: white;
+    padding: 40px 0;
+    text-align: center;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-    .card .btn:hover {
-        background-color: #0056b3;
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-bottom: 20px;
+    gap: 30px;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 220px;
+}
+
+    .footer-section h3 {
+        font-size: 20px;
+        margin-bottom: 15px;
+        color: #ff6600;
     }
 
-.card:hover {
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    transform: translateY(-5px);
-    transition: all 0.3s ease-in-out;
-}
-
-/* Dark mode */
-.dark-mode {
-    color: white !important;
-    background-color: #121212;
-}
-
-    .dark-mode h1,
-    .dark-mode h2,
-    .dark-mode h3,
-    .dark-mode h4,
-    .dark-mode h5,
-    .dark-mode h6,
-    .dark-mode p,
-    .dark-mode span,
-    .dark-mode a {
-        color: white !important;
+    .footer-section p,
+    .footer-section a {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        transition: color 0.3s ease;
     }
 
-        .dark-mode a:hover {
-            color: #ffcc00 !important;
+        .footer-section a:hover {
+            color: #ff6600;
         }
 
-/* Carousel */
-.carousel-item img {
-    height: 500px;
-    object-fit: cover;
+.social-media {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
 }
 
-.carousel-caption {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.5);
-    padding: 20px;
-    border-radius: 10px;
-}
-
-    .carousel-caption h1 {
-        font-size: 2rem;
-        font-weight: bold;
+    .social-media a {
+        font-size: 24px;
+        color: white;
+        transition: transform 0.3s ease, color 0.3s ease;
     }
 
-/* Load trang */
+        .social-media a:hover {
+            color: #ff6600;
+            transform: scale(1.2);
+        }
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 15px;
+    font-size: 16px;
+    opacity: 0.7;
+    text-align: center;
+}
+
+/* ============================================
+   Floating Action Buttons
+============================================ */
+.floating-buttons {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 9999;
+}
+
+    .floating-buttons a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+        .floating-buttons a:hover {
+            transform: scale(1.1);
+        }
+
+    .floating-buttons img {
+        width: 30px;
+        height: 30px;
+    }
+
+.messenger-btn {
+    background-color: #E1306C;
+    animation: shake 2s infinite;
+}
+
+    .messenger-btn:hover {
+        background-color: #C1275B;
+    }
+
+.phone-btn {
+    background-color: #E60000;
+    animation: shake 2s infinite;
+}
+
+    .phone-btn:hover {
+        background-color: #B30000;
+    }
+
+@keyframes shake {
+    0%, 50%, 100% {
+        transform: rotate(0deg);
+    }
+
+    10%, 30% {
+        transform: rotate(10deg);
+    }
+
+    20%, 40% {
+        transform: rotate(-10deg);
+    }
+}
+
+/* ============================================
+   Utilities & Animations
+============================================ */
 .fade-in {
     opacity: 0;
     transform: translateY(20px);
@@ -205,9 +311,68 @@ body {
     }
 }
 
-/* Không gạch chân của các liên kết */
-
 a {
+    color: inherit;
     text-decoration: none;
 }
+
+.icon-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: inline-block;
+}
+
+    .icon-hover:hover {
+        transform: scale(1.2);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+
+/* Form placeholder alignment */
+.form-floating > .form-control::placeholder,
+.form-floating > .form-control-plaintext::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control:focus::placeholder,
+.form-floating > .form-control-plaintext:focus::placeholder {
+    text-align: start;
+}
+
+/* Carousel Caption */
+.carousel-caption {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 30px;
+    border-radius: 10px;
+    width: 60%;
+    max-width: 800px;
+    text-align: center;
+}
+
+    .carousel-caption h1 {
+        font-size: 3rem;
+        font-weight: bold;
+    }
+
+    .carousel-caption p {
+        font-size: 1.5rem;
+    }
+
+/*xem sửa xóa cho đẹp xíu*/
+.action-link {
+    color: #0d6efd; /* màu xanh Bootstrap */
+    text-decoration: none;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+    .action-link:hover {
+        color: #0a58ca; /* xanh đậm hơn khi hover */
+        text-decoration: underline;
+        background-color: rgba(13, 110, 253, 0.1); /* nền nhẹ */
+    }
 

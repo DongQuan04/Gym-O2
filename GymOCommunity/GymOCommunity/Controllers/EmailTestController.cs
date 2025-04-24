@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-public class TestController : Controller
+public class EmailTestController : Controller
 {
     private readonly EmailSender _emailSender;
 
-    public TestController(EmailSender emailSender)
+    public EmailTestController(EmailSender emailSender)
     {
         _emailSender = emailSender;
     }

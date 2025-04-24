@@ -1,12 +1,345 @@
-﻿@{
-    ViewData["Title"] = "Bài tập Gym";
-}
+﻿<div class="container my-5 text-light">
+    <h2 class="text-center mb-4 fw-bold">💪 Các Nhóm Cơ</h2>
 
-<h2>Bài tập Gym</h2>
-<ul>
-    <li>Chống đẩy (Push-ups)</li>
-    <li>Gập bụng (Sit-ups)</li>
-    <li>Squat</li>
-    <li>Plank</li>
-    <li>Jumping Jacks</li>
-</ul>
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-pills justify-content-center mb-4" id="muscleTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#chest">Ngực</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#back">Lưng</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#shoulders">Vai</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#biceps">Tay Trước</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#triceps">Tay Sau</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#legs">Chân</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#abs">Bụng</button></li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content bg-dark p-4 rounded shadow-lg">
+        <!-- Tab: Ngực -->
+        <div class="tab-pane fade show active" id="chest">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-secondary text-light border-0 shadow">
+                        <div class="card-body">
+                            <h4 class="card-title text-warning"><i class="fas fa-dumbbell"></i> Thông tin nhóm cơ Ngực</h4>
+                            <p>Nhóm cơ ngực gồm <strong>Pectoralis Major</strong> và <strong>Pectoralis Minor</strong> giúp đẩy ngực phát triển toàn diện.</p>
+                            <h5 class="mt-3"><i class="fas fa-list-ul"></i> Bài tập cơ bản:</h5>
+                            <ul>
+                                <li><strong>Push-up</strong>: Tăng sức bền và độ săn chắc.</li>
+                                <li><strong>Bench Press</strong>: Phát triển toàn bộ cơ ngực.</li>
+                                <li><strong>Dumbbell Fly</strong>: Tăng độ giãn và đầy của cơ.</li>
+                            </ul>
+                            <h5 class="mt-3 text-warning"><i class="fas fa-exclamation-triangle"></i> Lưu ý kỹ thuật:</h5>
+                            <ul>
+                                <li>Giữ vai cố định, không cong lưng quá mức.</li>
+                                <li>Không dùng đà khi đẩy tạ.</li>
+                                <li>Tập trung cảm nhận cơ ngực co giãn.</li>
+                                <li>Luôn khởi động kỹ để tránh chấn thương.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Image & Video -->
+                <div class="col-md-6">
+                    <img src="https://cdn.nhathuoclongchau.com.vn/unsafe/https://cms-prod.s3-sgn09.fptcloud.com/cau_tao_co_nguc_va_cac_bai_tap_tang_co_nguc_hieu_qua_1_4bb327ac28.jpg" class="img-fluid rounded shadow mb-3" alt="Ngực">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/eozdVDA78K0" title="Hướng dẫn tập ngực hiệu quả" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <!-- Tab: Lưng -->
+        <div class="tab-pane fade" id="back">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-secondary text-light border-0 shadow">
+                        <div class="card-body">
+                            <h4 class="card-title text-warning"><i class="fas fa-dumbbell"></i> Thông tin nhóm cơ Lưng</h4>
+                            <p>Nhóm cơ Lưng gồm <strong>Latissimus Dorsi (xô)</strong> và <strong>Trapezius (cầu vai)</strong> và  <strong>Rhomboids (cơ giữa lưng)</strong>Đây là nhóm cơ lớn giúp cải thiện tư thế và hỗ trợ cho các bài đẩy, kéo hiệu quả.</p>
+                            <h5 class="mt-3"><i class="fas fa-list-ul"></i> Bài tập cơ bản:</h5>
+                            <ul>
+                                <li><strong>Pull-up</strong>: Rèn luyện sức mạnh toàn bộ lưng.</li>
+                                <li><strong>Bent Over Row</strong>: Tác động mạnh vào phần giữa lưng.</li>
+                                <li><strong>Lat Pulldown</strong>: TGiúp mở rộng cơ xô, tạo hình chữ V cho lưng.</li>
+                            </ul>
+                            <h5 class="mt-3 text-warning"><i class="fas fa-exclamation-triangle"></i> Lưu ý kỹ thuật:</h5>
+                            <ul>
+                                <li>Giữ lưng thẳng khi tập các bài kéo hoặc gập người.</li>
+                                <li>Không rút vai hoặc đẩy hông về trước quá mức.</li>
+                                <li>Tập trung kiểm soát chuyển động, tránh quán tính.</li>
+                                <li>Khởi động kỹ phần lưng dưới và cầu vai.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Image & Video -->
+                <div class="col-md-6">
+                    <img src="https://manup.vn/wp-content/uploads/2025/02/nhom-co-lung-1.jpg" class="img-fluid rounded shadow" alt="Lưng">
+
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/CAwf7n6Luuc" title="Back Workout"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+        <!-- Tab: Vai -->
+        <div class="tab-pane fade" id="shoulders">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-secondary text-light border-0 shadow">
+                        <div class="card-body">
+                            <h4 class="card-title text-warning"><i class="fas fa-dumbbell"></i> Thông tin nhóm cơ Vai</h4>
+                            <p>Nhóm cơ vai gồm <strong>Deltoid</strong> với 3 phần: <strong>trước (anterior)</strong>, <strong>giữa (lateral)</strong> và <strong>sau (posterior)</strong>. Đây là nhóm cơ quan trọng trong việc tạo nên khung vai rộng và thẩm mỹ.</p>
+
+                            <h5 class="mt-3"><i class="fas fa-list-ul"></i> Bài tập cơ bản:</h5>
+                            <ul>
+                                <li><strong>Overhead Press</strong>: Tác động toàn diện đến cả vai trước và vai giữa.</li>
+                                <li><strong>Lateral Raise</strong>: Tăng chiều rộng bờ vai bằng cách kích hoạt vai giữa.</li>
+                                <li><strong>Reverse Fly</strong>: Phát triển vai sau, hỗ trợ giữ tư thế chuẩn.</li>
+                            </ul>
+
+                            <h5 class="mt-3 text-warning"><i class="fas fa-exclamation-triangle"></i> Lưu ý kỹ thuật:</h5>
+                            <ul>
+                                <li>Không nâng tạ quá cao khi lateral raise để tránh áp lực lên khớp vai.</li>
+                                <li>Giữ cổ tay và khủy tay thẳng hàng để tránh chấn thương.</li>
+                                <li>Tập chậm và đúng form, không đẩy hông hay lưng để lấy đà.</li>
+                                <li>Khởi động kỹ khớp vai trước buổi tập.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Image & Video -->
+                <div class="col-md-6">
+                    <img src="https://gymhomies.com/wp-content/uploads/2021/11/cau-tao-chi-tiet-co-vai-cua-co-the.jpg" class="img-fluid rounded shadow mb-3" alt="Cơ vai">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/2yjwXTZQDDI" title="Shoulder Workout" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+        <!-- Tab: Tay Trước -->
+        <div class="tab-pane fade" id="biceps">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-secondary text-light border-0 shadow">
+                        <div class="card-body">
+                            <h4 class="card-title text-warning"><i class="fas fa-dumbbell"></i> Thông tin nhóm cơ Tay Trước</h4>
+                            <p>Nhóm cơ tay trước gồm <strong>Biceps Brachii</strong> (cơ nhị đầu) và <strong>Brachialis</strong>, đóng vai trò quan trọng trong các động tác kéo và nâng tạ.</p>
+
+                            <h5 class="mt-3"><i class="fas fa-list-ul"></i> Bài tập cơ bản:</h5>
+                            <ul>
+                                <li><strong>Bicep Curl</strong>: Bài tập kinh điển giúp làm dày và đầy cơ tay trước.</li>
+                                <li><strong>Hammer Curl</strong>: Tác động đến cả biceps và brachialis, hỗ trợ tăng độ dày cánh tay.</li>
+                                <li><strong>Concentration Curl</strong>: Tăng khả năng cô lập cơ tay trước, giúp phát triển rõ nét hơn.</li>
+                            </ul>
+
+                            <h5 class="mt-3 text-warning"><i class="fas fa-exclamation-triangle"></i> Lưu ý kỹ thuật:</h5>
+                            <ul>
+                                <li>Giữ khuỷu tay cố định, tránh đung đưa người khi nâng tạ.</li>
+                                <li>Không dùng quán tính, nên tập chậm để cảm nhận cơ co giãn.</li>
+                                <li>Luôn khởi động cổ tay và khớp khuỷu trước khi tập.</li>
+                                <li>Tập xen kẽ nhiều bài để kích thích toàn bộ nhóm cơ hiệu quả.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Image & Video -->
+                <div class="col-md-6">
+                    <img src="https://dungcutheduc.vn/images/nhom-co-tay-truoc.jpg" class="img-fluid rounded shadow mb-3" alt="Tay trước">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/kwG2ipFRgfo" title="Hướng dẫn tập tay trước" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <!-- Tab: Tay Sau -->
+        <div class="tab-pane fade" id="triceps">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-secondary text-light border-0 shadow">
+                        <div class="card-body">
+                            <h4 class="card-title text-warning"><i class="fas fa-dumbbell"></i> Thông tin nhóm cơ Tay Sau</h4>
+                            <p>Cơ tay sau gồm 3 đầu cơ chính : <strong>long head</strong>, <strong>lateral head</strong> và <strong>medial head</strong>. Đây là nhóm cơ chiếm phần lớn khối lượng tay, đóng vai trò quan trọng trong các động tác đẩy.</p>
+
+                            <h5 class="mt-3"><i class="fas fa-list-ul"></i> Bài tập cơ bản:</h5>
+                            <ul>
+                                <li><strong>Triceps Dips</strong>: Tác động vào toàn bộ tay sau và cơ ngực.</li>
+                                <li><strong>Overhead Triceps Extension</strong>: Tập trung vào phần long head.</li>
+                                <li><strong>Triceps Pushdown (cáp)</strong>: Cô lập cơ tay sau hiệu quả.</li>
+                            </ul>
+
+                            <h5 class="mt-3 text-warning"><i class="fas fa-exclamation-triangle"></i> Lưu ý kỹ thuật:</h5>
+                            <ul>
+                                <li>Giữ khuỷu tay cố định khi thực hiện các bài cô lập.</li>
+                                <li>Không đẩy tạ quá nặng dẫn đến mất kiểm soát form.</li>
+                                <li>Thở ra khi duỗi tay và hít vào khi co tay về.</li>
+                                <li>Làm nóng kỹ khớp khuỷu trước khi tập.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Image & Video -->
+                <div class="col-md-6">
+                    <img src="https://cali.vn/storage/app/media/Editors/6305a781ea445cac-nhom-co-tren-co-the-4.jpg" class="img-fluid rounded shadow mb-3" alt="Cơ tay sau">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/nRiJVZDpdL0" title="Triceps Workout" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Tab: Chân -->
+        <div class="tab-pane fade" id="legs">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-secondary text-light border-0 shadow">
+                        <div class="card-body">
+                            <h4 class="card-title text-warning"><i class="fas fa-dumbbell"></i> Thông tin nhóm cơ Chân</h4>
+                            <p>Nhóm cơ chân bao gồm các nhóm chính như <strong>đùi trước (quadriceps)</strong>, <strong>đùi sau (hamstrings)</strong>, <strong>cơ mông (glutes)</strong> và <strong>bắp chân (calves)</strong>. Đây là nhóm cơ lớn nhất, ảnh hưởng đến sức mạnh tổng thể.</p>
+
+                            <h5 class="mt-3"><i class="fas fa-list-ul"></i> Bài tập cơ bản:</h5>
+                            <ul>
+                                <li><strong>Squat</strong>: Bài tập toàn diện cho đùi, mông và thân dưới.</li>
+                                <li><strong>Leg Press</strong>: Tăng sức mạnh đùi trước, sau và mông.</li>
+                                <li><strong>Lunges</strong>: Cân bằng và phát triển cơ đùi từng bên.</li>
+                            </ul>
+
+                            <h5 class="mt-3 text-warning"><i class="fas fa-exclamation-triangle"></i> Lưu ý kỹ thuật:</h5>
+                            <ul>
+                                <li>Giữ lưng thẳng, không cong lưng khi squat hay leg press.</li>
+                                <li>Không để gối vượt quá mũi chân khi xuống tấn.</li>
+                                <li>Tập chậm, kiểm soát chuyển động để bảo vệ khớp gối.</li>
+                                <li>Luôn khởi động kỹ các khớp đầu gối và cổ chân.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Image & Video -->
+                <div class="col-md-6">
+                    <img src="https://www.thethaothientruong.vn/uploads/2022/nhom-co-dui-tren-co-the.jpg" class="img-fluid rounded shadow mb-3" alt="Cơ chân">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/1uDiW5--rAE" title="Leg Workout" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Tab: Bụng -->
+        <div class="tab-pane fade" id="abs">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-secondary text-light border-0 shadow">
+                        <div class="card-body">
+                            <h4 class="card-title text-warning"><i class="fas fa-dumbbell"></i> Thông tin nhóm cơ Bụng</h4>
+                            <p>Cơ bụng gồm các nhóm chính như <strong>Rectus Abdominis</strong> (bụng trước), <strong>Obliques</strong> (bụng xiên) và <strong>Transverse Abdominis</strong> (bụng ngang sâu). Cơ bụng hỗ trợ thăng bằng, chuyển động và bảo vệ cột sống.</p>
+
+                            <h5 class="mt-3"><i class="fas fa-list-ul"></i> Bài tập cơ bản:</h5>
+                            <ul>
+                                <li><strong>Crunches</strong>: Tác động mạnh vào phần bụng trên.</li>
+                                <li><strong>Leg Raises</strong>: Tập trung phần bụng dưới.</li>
+                                <li><strong>Plank</strong>: Tăng sức bền và siết toàn bộ core.</li>
+                            </ul>
+
+                            <h5 class="mt-3 text-warning"><i class="fas fa-exclamation-triangle"></i> Lưu ý kỹ thuật:</h5>
+                            <ul>
+                                <li>Không dùng lực quán tính, tập chậm và kiểm soát.</li>
+                                <li>Thở ra khi gồng bụng và hít vào khi hạ xuống.</li>
+                                <li>Không gập cổ quá sâu khi crunches.</li>
+                                <li>Tập bụng không thay thế được chế độ ăn lành mạnh!</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Image & Video -->
+                <div class="col-md-6">
+                    <img src="https://bloganchoi.com/wp-content/uploads/2021/04/co-bung-6-mui-1-1.jpg" class="img-fluid rounded shadow mb-3" alt="Cơ bụng">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/1919eTCoESo" title="Abs Workout" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>⏰ HOẠT ĐỘNG CỘNG ĐỒNG</h3>
+                <p>📅 Hoạt động 24/7 – Kết nối, chia sẻ, học hỏi mọi lúc, mọi nơi!</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>📍 KẾT NỐI VỚI CHÚNG TÔI</h3>
+                <p><i class="fas fa-envelope"></i> info@GymO.com.vn</p>
+                <p><i class="fas fa-phone"></i> 0967 355 455</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>📚 THÔNG TIN</h3>
+                <p><a href="#">Tham gia đội ngũ Admin</a></p>
+                <p><a href="#">Về chúng tôi</a></p>
+                <p><a href="#">Điều khoản & Điều kiện</a></p>
+                <p><a href="#">Chính sách bảo mật</a></p>
+            </div>
+
+            <div class="footer-social">
+                <p>THEO DÕI CỘNG ĐỒNG</p>
+
+                <!-- Link đến Facebook, Instagram, YouTube -->
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/groups/1356980198758964" target="_blank">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="https://www.instagram.com/YOUR_INSTAGRAM" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.youtube.com/%40Gym-OCommunity" target="_blank" title="Kênh YouTube Gym-O Community">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+
+                </div>
+
+
+
+                <!-- Thêm widget Facebook -->
+                <div class="fb-page" data-href="https://www.facebook.com/YOUR_PAGE"
+                     data-tabs="" data-width="300" data-height="150" data-small-header="false"
+                     data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</footer>

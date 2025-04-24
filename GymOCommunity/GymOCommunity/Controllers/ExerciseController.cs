@@ -8,5 +8,9 @@ namespace GymOCommunity.Controllers
         {
             return View();
         }
+        public IActionResult Nutrition()
+        {
+            return View();
+        }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GymOCommunity.Controllers
 {
-    [Authorize]
+   
     public class CommentController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -33,7 +33,7 @@ namespace GymOCommunity.Controllers
                 PostId = postId,
                 Content = content,
                 UserId = userId,
-                UserName = userName // 🔹 Bổ sung dòng này để tránh lỗi thiếu dữ liệu
+                UserName = userName // dòng này để tránh lỗi thiếu dữ liệu
             };
 
             _context.Comments.Add(comment);
