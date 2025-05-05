@@ -31,5 +31,16 @@ namespace GymOCommunity.Models
 
         // 🔹 Danh sách bình luận (Thêm vào đây)
         public List<Comment> Comments { get; set; } = new List<Comment>();
+
+        public List<PostImage> Images { get; set; } = new List<PostImage>();
+
+        [NotMapped]
+        public List<IFormFile> AdditionalImages { get; set; } = new List<IFormFile>();// Upload nhiều ảnh
+
+        public virtual ICollection<PostImage> PostImages { get; set; } = new List<PostImage>();
+
+        public string? VideoUrl { get; set; }
+        [NotMapped]
+        public IFormFile? VideoFile { get; set; }
     }
 }

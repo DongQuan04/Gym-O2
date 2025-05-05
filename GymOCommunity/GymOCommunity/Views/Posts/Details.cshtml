@@ -10,8 +10,36 @@
 @if (!string.IsNullOrEmpty(Model.ImageUrl))
 {
     <p><strong>Ảnh bài viết:</strong></p>
-    <img src="@Model.ImageUrl" alt="Ảnh bài viết" style="max-width: 300px;" />
+    <img src="@Model.ImageUrl" alt="Ảnh bài viết" class="grid-image" onclick="openModal(this.src)" />
 }
+
+@if ((Model.PostImages != null && Model.PostImages.Any()) || !string.IsNullOrEmpty(Model.VideoUrl))
+{
+    <p><strong>Ảnh bổ sung và Video:</strong></p>
+    <div class="image-grid">
+        @if (Model.PostImages != null && Model.PostImages.Any())
+        {
+            @foreach (var img in Model.PostImages)
+            {
+                <img src="@img.ImageUrl" alt="Ảnh phụ" class="grid-image" onclick="openModal(this.src)" />
+            }
+        }
+
+        @if (!string.IsNullOrEmpty(Model.VideoUrl))
+        {
+            <video controls class="grid-image" style="max-height:200px; border-radius:8px;">
+                <source src="@Model.VideoUrl" type="video/mp4">
+                Trình duyệt không hỗ trợ phát video.
+            </video>
+        }
+    </div>
+}
+
+<!-- Modal xem ảnh lớn -->
+<div id="imageModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index:9999;">
+    <span onclick="closeModal()" style="position:absolute; top:10px; right:20px; color:white; font-size:30px; cursor:pointer;">&times;</span>
+    <img id="modalImage" style="max-width:90%; max-height:90%;" />
+</div>
 
 <hr />
 
@@ -49,10 +77,44 @@ else
 <a href="/Posts/Delete/@Model.Id" class="btn btn-danger">Xóa</a>
 <a href="/Posts" class="btn btn-secondary">Quay lại</a>
 
+@section Styles {
+    <style>
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
 
-<!-- lasted cmt -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        window.scrollTo(0, document.body.scrollHeight);
-    });
-</script>
+        .grid-image {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            border: 1px solid #ccc;
+        }
+
+            .grid-image:hover {
+                transform: scale(1.03);
+            }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        function openModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+}

@@ -11,7 +11,7 @@
 
     <div class="mb-3">
         <label asp-for="Title" class="form-label fw-bold"></label>
-        <input asp-for="Title" class="form-control" />
+        <input asp-for="Title" class="form-control" aria-describedby="titleHelp" />
         <span asp-validation-for="Title" class="text-danger small"></span>
     </div>
 
@@ -21,12 +21,11 @@
         <span asp-validation-for="Content" class="text-danger small"></span>
     </div>
 
-    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
     {
-        <div class="mb-3">
-            <label class="form-label fw-bold">Ảnh hiện tại:</label>
-            <br />
-            <img src="@Model.ImageUrl" alt="Ảnh bài viết" class="img-thumbnail mb-2" style="max-width: 300px;" />
+        <div class="mb-3" id="currentImageContainer">
+            <label class="form-label fw-bold">Ảnh hiện tại:</label><br />
+            <img src="@Model.ImageUrl" alt="Ảnh bài viết" class="img-thumbnail mb-2" style="max-width: 300px;" id="currentImage" />
         </div>
     }
 
@@ -41,9 +40,13 @@
 
 @section Scripts {
     <script>
-        document.querySelector('input[name="ImageFile"]').addEventListener('change', function (e) {
+        const imageInput = document.querySelector('input[name="ImageFile"]');
+        const preview = document.getElementById('previewImage');
+        const currentImage = document.getElementById('currentImage');
+        const currentImageContainer = document.getElementById('currentImageContainer');
+
+        imageInput.addEventListener('change', function (e) {
             const file = e.target.files[0];
-            const preview = document.getElementById('previewImage');
 
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
@@ -52,11 +55,18 @@
                     preview.classList.remove('d-none');
                     preview.style.opacity = 0;
                     setTimeout(() => preview.style.opacity = 1, 50);
+
+                    if (currentImageContainer) {
+                        currentImageContainer.classList.add('d-none');
+                    }
                 };
                 reader.readAsDataURL(file);
             } else {
                 preview.src = "#";
                 preview.classList.add('d-none');
+                if (currentImageContainer) {
+                    currentImageContainer.classList.remove('d-none');
+                }
             }
         });
     </script>

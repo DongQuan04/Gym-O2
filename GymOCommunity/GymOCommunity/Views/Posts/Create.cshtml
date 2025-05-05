@@ -27,15 +27,26 @@
         <img id="previewImage" src="#" alt="Xem trước ảnh" class="img-thumbnail mt-2 d-none" style="max-width: 100%; height: auto;" />
     </div>
 
+    <div class="mb-3">
+        <label class="form-label fw-bold">Ảnh bổ sung (có thể chọn nhiều ảnh)</label>
+        <input type="file" name="AdditionalImages" class="form-control" accept="image/*" multiple />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Video (tùy chọn)</label>
+        <input type="file" name="VideoFile" class="form-control" accept="video/*" />
+    </div>
+
     <button type="submit" class="btn btn-success w-100">Đăng bài</button>
 </form>
 
 @section Scripts {
     <script>
-        document.querySelector('input[name="ImageFile"]').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            const preview = document.getElementById('previewImage');
+        const imageInput = document.querySelector('input[name="ImageFile"]');
+        const preview = document.getElementById('previewImage');
 
+        imageInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function (e) {

@@ -80,9 +80,39 @@ namespace GymOCommunity.Data.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("VideoUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("GymOCommunity.Models.PostImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PostId1")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("PostId1");
+
+                    b.ToTable("PostImages");
                 });
 
             modelBuilder.Entity("GymOCommunity.Models.Report", b =>
@@ -314,6 +344,21 @@ namespace GymOCommunity.Data.Migrations
                     b.Navigation("Post");
                 });
 
+            modelBuilder.Entity("GymOCommunity.Models.PostImage", b =>
+                {
+                    b.HasOne("GymOCommunity.Models.Post", "Post")
+                        .WithMany("PostImages")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymOCommunity.Models.Post", null)
+                        .WithMany("Images")
+                        .HasForeignKey("PostId1");
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -368,6 +413,10 @@ namespace GymOCommunity.Data.Migrations
             modelBuilder.Entity("GymOCommunity.Models.Post", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Images");
+
+                    b.Navigation("PostImages");
                 });
 #pragma warning restore 612, 618
         }

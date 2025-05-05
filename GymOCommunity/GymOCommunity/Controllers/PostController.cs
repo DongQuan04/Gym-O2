@@ -45,6 +45,7 @@ namespace GymOCommunity.Controllers
         {
             var post = _context.Posts
                 .Include(p => p.Comments)
+                .Include(p => p.PostImages)
                 .FirstOrDefault(p => p.Id == id);
 
             if (post == null)
@@ -59,50 +60,81 @@ namespace GymOCommunity.Controllers
         }
 
         [HttpPost]
+        [RequestSizeLimit(104857600)] // 100MB
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Post post)
         {
-            // Lấy UserId trước khi check ModelState
             var currentUserId = _userManager.GetUserId(User);
-            Debug.WriteLine($"DEBUG [Create Post] - Current UserId: {currentUserId}");
-
-            // Gắn UserId
             post.UserId = currentUserId;
             post.CreatedAt = DateTime.Now;
 
-            // Check ModelState khi đã gán UserId
             if (!ModelState.IsValid)
-            {
-                foreach (var entry in ModelState)
-                {
-                    foreach (var error in entry.Value.Errors)
-                    {
-                        Debug.WriteLine($"Model Error - {entry.Key}: {error.ErrorMessage}");
-                    }
-                }
                 return View(post);
-            }
 
-            // Xử lý ảnh
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+            Directory.CreateDirectory(uploadsFolder);
+
+            // Ảnh đại diện
             if (post.ImageFile != null && post.ImageFile.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                Directory.CreateDirectory(uploadsFolder);
-
-                string uniqueFileName = Guid.NewGuid() + "_" + post.ImageFile.FileName;
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(post.ImageFile.FileName);
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await post.ImageFile.CopyToAsync(stream);
                 }
+
                 post.ImageUrl = "/uploads/" + uniqueFileName;
+            }
+
+            // Video
+            if (post.VideoFile != null && post.VideoFile.Length > 0)
+            {
+                string uniqueVideoName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(post.VideoFile.FileName);
+                string videoPath = Path.Combine(uploadsFolder, uniqueVideoName);
+
+                using (var stream = new FileStream(videoPath, FileMode.Create))
+                {
+                    await post.VideoFile.CopyToAsync(stream);
+                }
+
+                post.VideoUrl = "/uploads/" + uniqueVideoName;
             }
 
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
-        }
 
+            // Ảnh bổ sung
+            if (post.AdditionalImages != null && post.AdditionalImages.Any())
+            {
+                foreach (var image in post.AdditionalImages)
+                {
+                    if (image != null && image.Length > 0)
+                    {
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(image.FileName);
+                        string imagePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var stream = new FileStream(imagePath, FileMode.Create))
+                        {
+                            await image.CopyToAsync(stream);
+                        }
+
+                        var postImage = new PostImage
+                        {
+                            PostId = post.Id,
+                            ImageUrl = "/uploads/" + uniqueFileName
+                        };
+
+                        _context.PostImages.Add(postImage);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
 
         public IActionResult Edit(int id)
         {
@@ -133,9 +165,11 @@ namespace GymOCommunity.Controllers
             if (!ModelState.IsValid)
                 return View(post);
 
+            string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+
+            // Ảnh đại diện
             if (post.ImageFile != null && post.ImageFile.Length > 0)
             {
-                string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
                 string uniqueFileName = $"{Guid.NewGuid()}_{post.ImageFile.FileName}";
                 string filePath = Path.Combine(uploadsDir, uniqueFileName);
 
@@ -143,20 +177,44 @@ namespace GymOCommunity.Controllers
                 {
                     await post.ImageFile.CopyToAsync(stream);
                 }
+
                 post.ImageUrl = $"/uploads/{uniqueFileName}";
 
                 if (!string.IsNullOrEmpty(existingPost.ImageUrl))
                 {
                     string oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, existingPost.ImageUrl.TrimStart('/'));
                     if (System.IO.File.Exists(oldFilePath))
-                    {
                         System.IO.File.Delete(oldFilePath);
-                    }
                 }
             }
             else
             {
                 post.ImageUrl = existingPost.ImageUrl;
+            }
+
+            // Video
+            if (post.VideoFile != null && post.VideoFile.Length > 0)
+            {
+                string uniqueVideoName = $"{Guid.NewGuid()}_{post.VideoFile.FileName}";
+                string videoPath = Path.Combine(uploadsDir, uniqueVideoName);
+
+                using (var stream = new FileStream(videoPath, FileMode.Create))
+                {
+                    await post.VideoFile.CopyToAsync(stream);
+                }
+
+                post.VideoUrl = $"/uploads/{uniqueVideoName}";
+
+                if (!string.IsNullOrEmpty(existingPost.VideoUrl))
+                {
+                    string oldVideoPath = Path.Combine(_webHostEnvironment.WebRootPath, existingPost.VideoUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(oldVideoPath))
+                        System.IO.File.Delete(oldVideoPath);
+                }
+            }
+            else
+            {
+                post.VideoUrl = existingPost.VideoUrl;
             }
 
             post.UserId = existingPost.UserId;
@@ -201,13 +259,20 @@ namespace GymOCommunity.Controllers
 
             try
             {
+                // Xóa ảnh đại diện
                 if (!string.IsNullOrEmpty(post.ImageUrl))
                 {
                     string filePath = Path.Combine(_webHostEnvironment.WebRootPath, post.ImageUrl.TrimStart('/'));
                     if (System.IO.File.Exists(filePath))
-                    {
                         System.IO.File.Delete(filePath);
-                    }
+                }
+
+                // Xóa video
+                if (!string.IsNullOrEmpty(post.VideoUrl))
+                {
+                    string videoPath = Path.Combine(_webHostEnvironment.WebRootPath, post.VideoUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(videoPath))
+                        System.IO.File.Delete(videoPath);
                 }
 
                 _context.Posts.Remove(post);
