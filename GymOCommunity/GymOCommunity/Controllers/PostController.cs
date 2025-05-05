@@ -46,6 +46,7 @@ namespace GymOCommunity.Controllers
             var post = _context.Posts
                 .Include(p => p.Comments)
                 .Include(p => p.PostImages)
+                .Include(p => p.PostVideos)
                 .FirstOrDefault(p => p.Id == id);
 
             if (post == null)
@@ -77,7 +78,7 @@ namespace GymOCommunity.Controllers
             // Ảnh đại diện
             if (post.ImageFile != null && post.ImageFile.Length > 0)
             {
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(post.ImageFile.FileName);
+                string uniqueFileName = Guid.NewGuid() + "_" + Path.GetFileName(post.ImageFile.FileName);
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -88,31 +89,43 @@ namespace GymOCommunity.Controllers
                 post.ImageUrl = "/uploads/" + uniqueFileName;
             }
 
-            // Video
-            if (post.VideoFile != null && post.VideoFile.Length > 0)
+            _context.Posts.Add(post);
+            await _context.SaveChangesAsync(); // Cần lưu trước để có post.Id
+
+            // Thêm video
+            if (post.VideoFiles != null && post.VideoFiles.Any())
             {
-                string uniqueVideoName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(post.VideoFile.FileName);
-                string videoPath = Path.Combine(uploadsFolder, uniqueVideoName);
-
-                using (var stream = new FileStream(videoPath, FileMode.Create))
+                foreach (var video in post.VideoFiles)
                 {
-                    await post.VideoFile.CopyToAsync(stream);
-                }
+                    if (video.Length > 0)
+                    {
+                        string uniqueVideoName = Guid.NewGuid() + "_" + Path.GetFileName(video.FileName);
+                        string videoPath = Path.Combine(uploadsFolder, uniqueVideoName);
 
-                post.VideoUrl = "/uploads/" + uniqueVideoName;
+                        using (var stream = new FileStream(videoPath, FileMode.Create))
+                        {
+                            await video.CopyToAsync(stream);
+                        }
+
+                        var postVideo = new PostVideo
+                        {
+                            PostId = post.Id,
+                            VideoUrl = "/uploads/" + uniqueVideoName
+                        };
+
+                        _context.PostVideos.Add(postVideo);
+                    }
+                }
             }
 
-            _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
-
-            // Ảnh bổ sung
+            // Thêm ảnh bổ sung
             if (post.AdditionalImages != null && post.AdditionalImages.Any())
             {
                 foreach (var image in post.AdditionalImages)
                 {
-                    if (image != null && image.Length > 0)
+                    if (image.Length > 0)
                     {
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(image.FileName);
+                        string uniqueFileName = Guid.NewGuid() + "_" + Path.GetFileName(image.FileName);
                         string imagePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                         using (var stream = new FileStream(imagePath, FileMode.Create))
@@ -129,10 +142,9 @@ namespace GymOCommunity.Controllers
                         _context.PostImages.Add(postImage);
                     }
                 }
-
-                await _context.SaveChangesAsync();
             }
 
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
@@ -190,31 +202,6 @@ namespace GymOCommunity.Controllers
             else
             {
                 post.ImageUrl = existingPost.ImageUrl;
-            }
-
-            // Video
-            if (post.VideoFile != null && post.VideoFile.Length > 0)
-            {
-                string uniqueVideoName = $"{Guid.NewGuid()}_{post.VideoFile.FileName}";
-                string videoPath = Path.Combine(uploadsDir, uniqueVideoName);
-
-                using (var stream = new FileStream(videoPath, FileMode.Create))
-                {
-                    await post.VideoFile.CopyToAsync(stream);
-                }
-
-                post.VideoUrl = $"/uploads/{uniqueVideoName}";
-
-                if (!string.IsNullOrEmpty(existingPost.VideoUrl))
-                {
-                    string oldVideoPath = Path.Combine(_webHostEnvironment.WebRootPath, existingPost.VideoUrl.TrimStart('/'));
-                    if (System.IO.File.Exists(oldVideoPath))
-                        System.IO.File.Delete(oldVideoPath);
-                }
-            }
-            else
-            {
-                post.VideoUrl = existingPost.VideoUrl;
             }
 
             post.UserId = existingPost.UserId;

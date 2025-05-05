@@ -115,6 +115,28 @@ namespace GymOCommunity.Data.Migrations
                     b.ToTable("PostImages");
                 });
 
+            modelBuilder.Entity("GymOCommunity.Models.PostVideo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VideoUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostVideos");
+                });
+
             modelBuilder.Entity("GymOCommunity.Models.Report", b =>
                 {
                     b.Property<int>("Id")
@@ -359,6 +381,17 @@ namespace GymOCommunity.Data.Migrations
                     b.Navigation("Post");
                 });
 
+            modelBuilder.Entity("GymOCommunity.Models.PostVideo", b =>
+                {
+                    b.HasOne("GymOCommunity.Models.Post", "Post")
+                        .WithMany("PostVideos")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -417,6 +450,8 @@ namespace GymOCommunity.Data.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("PostImages");
+
+                    b.Navigation("PostVideos");
                 });
 #pragma warning restore 612, 618
         }

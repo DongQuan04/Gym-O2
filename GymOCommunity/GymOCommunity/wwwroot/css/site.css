@@ -222,6 +222,8 @@ body {
     font-size: 16px;
     opacity: 0.7;
     text-align: center;
+    background-color: transparent; /* hoặc cùng màu với body */
+    border-top: 1px solid #dee2e6;
 }
 
 /* ============================================

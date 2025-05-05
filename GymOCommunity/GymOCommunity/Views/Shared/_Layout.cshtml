@@ -47,7 +47,7 @@
         }
     </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
             <div class="container">
@@ -103,15 +103,15 @@
         </nav>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
+    <main class="flex-fill">
+        <div class="container pb-3">
             @RenderBody()
-        </main>
-
-        <div class="footer-bottom">
-            <p>© 2025 Gym-O, Inc. All rights reserved.</p>
         </div>
-    </div>
+    </main>
+
+    <footer class="footer-bottom text-center py-3 border-top">
+        <p class="mb-0">© 2025 Gym-O, Inc. All rights reserved.</p>
+    </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

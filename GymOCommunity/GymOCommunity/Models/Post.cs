@@ -42,5 +42,11 @@ namespace GymOCommunity.Models
         public string? VideoUrl { get; set; }
         [NotMapped]
         public IFormFile? VideoFile { get; set; }
+
+        public List<PostVideo> PostVideos { get; set; } = new List<PostVideo>();
+
+        [NotMapped]
+        public List<IFormFile> VideoFiles { get; set; }
+
     }
 }

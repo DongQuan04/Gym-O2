@@ -14,6 +14,8 @@ namespace GymOCommunity.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<PostImage> PostImages { get; set; }
+        public DbSet<PostVideo> PostVideos { get; set; }
+
 
         // Cấu hình các quan hệ giữa các bảng trong phương thức OnModelCreating
         protected override void OnModelCreating(ModelBuilder modelBuilder)
