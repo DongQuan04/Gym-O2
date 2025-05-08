@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace GymOCommunity.Models
 {
@@ -23,8 +24,11 @@ namespace GymOCommunity.Models
         [ForeignKey("User")]
         public string UserId { get; set; }
 
-        // 🔹 Thêm thuộc tính UserName để sửa lỗi
+        public virtual IdentityUser User { get; set; }  // Quan hệ đúng kiểu
+
         [Required]
         public string UserName { get; set; }
+
+        public int Likes { get; set; } = 0;
     }
 }

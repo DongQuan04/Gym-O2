@@ -19,7 +19,7 @@ namespace GymOCommunity.Models
 
         public string? ImageUrl { get; set; } // Đường dẫn ảnh trong server
 
-        [NotMapped] // Không lưu vào DB
+        [NotMapped] 
       
         public IFormFile? ImageFile { get; set; }
 
@@ -46,7 +46,7 @@ namespace GymOCommunity.Models
         public List<PostVideo> PostVideos { get; set; } = new List<PostVideo>();
 
         [NotMapped]
-        public List<IFormFile> VideoFiles { get; set; }
+        public List<IFormFile> VideoFiles { get; set; } = new List<IFormFile>();
 
     }
 }

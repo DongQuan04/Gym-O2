@@ -27,6 +27,21 @@ namespace GymOCommunity.Data
                 .HasMany(p => p.PostImages)    // Một Post có thể có nhiều PostImage
                 .WithOne(pi => pi.Post)       // Mỗi PostImage thuộc về một Post
                 .HasForeignKey(pi => pi.PostId);  // Chỉ định khóa ngoại cho PostId
+
+
+            // Cấu hình quan hệ Post - Comment
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.Post)
+                .WithMany(p => p.Comments)
+                .HasForeignKey(c => c.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Cấu hình quan hệ Comment - User (IdentityUser)
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

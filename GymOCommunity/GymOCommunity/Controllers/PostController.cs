@@ -45,6 +45,7 @@ namespace GymOCommunity.Controllers
         {
             var post = _context.Posts
                 .Include(p => p.Comments)
+                        .ThenInclude(c => c.User)
                 .Include(p => p.PostImages)
                 .Include(p => p.PostVideos)
                 .FirstOrDefault(p => p.Id == id);
@@ -58,6 +59,29 @@ namespace GymOCommunity.Controllers
         public IActionResult Create()
         {
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LikeComment(int id)
+        {
+            var comment = await _context.Comments.FindAsync(id);
+            if (comment == null)
+            {
+                return NotFound();
+            }
+
+            comment.Likes++;
+            await _context.SaveChangesAsync();
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                // Trả về JSON nếu là AJAX request
+                return Json(new { newLikeCount = comment.Likes });
+            }
+
+            // Fallback cho trình duyệt không hỗ trợ JavaScript
+            return RedirectToAction("Details", "Posts", new { id = comment.PostId });
         }
 
         [HttpPost]

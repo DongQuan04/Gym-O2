@@ -1,189 +1,338 @@
 ﻿@model GymOCommunity.Models.Post
 
-<h2>Chi tiết bài viết</h2>
+<div class="container py-4">
+    <!-- Bài viết chính -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title">@Model.Title</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <small class="text-muted">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                <div>
+                    <a href="/Posts/Edit/@Model.Id" class="btn btn-sm btn-outline-warning">Chỉnh sửa</a>
+                    <a href="/Posts/Delete/@Model.Id" class="btn btn-sm btn-outline-danger">Xóa</a>
+                </div>
+            </div>
 
-<p><strong>Tiêu đề:</strong> @Model.Title</p>
-<p><strong>Nội dung:</strong></p>
-<p>@Model.Content</p>
-<p><strong>Ngày tạo:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
+            <p class="card-text">@Model.Content</p>
 
-@if (!string.IsNullOrEmpty(Model.ImageUrl))
-{
-    <p><strong>Ảnh bài viết:</strong></p>
-    <img src="@Model.ImageUrl" alt="Ảnh bài viết" class="grid-image" onclick="openImageModal(this.src)" />
-}
-
-@if ((Model.PostImages != null && Model.PostImages.Any()) || !string.IsNullOrEmpty(Model.VideoUrl))
-{
-    <p><strong>Xem thêm:</strong></p>
-    <div class="image-grid">
-        @if (Model.PostImages != null && Model.PostImages.Any())
-        {
-            foreach (var img in Model.PostImages)
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
             {
-                <img src="@img.ImageUrl" alt="Ảnh phụ" class="grid-image" onclick="openImageModal(this.src)" />
+                <div class="mt-3">
+                    <img src="@Model.ImageUrl" alt="Ảnh bài viết" class="img-fluid rounded" onclick="openImageModal(this.src)" style="cursor: pointer; max-height: 500px; object-fit: contain;">
+                </div>
             }
-        }
 
-        @if (!string.IsNullOrEmpty(Model.VideoUrl))
-        {
-            <video class="grid-image" onclick="openVideoModal('@Model.VideoUrl')">
-                <source src="@Model.VideoUrl" type="video/mp4" />
-                Trình duyệt không hỗ trợ phát video.
-            </video>
-        }
-    </div>
-}
+            @if ((Model.PostImages != null && Model.PostImages.Any()) || !string.IsNullOrEmpty(Model.VideoUrl) || (Model.PostVideos != null && Model.PostVideos.Any()))
+            {
+                <div class="mt-4">
+                    <h5 class="mb-3">Xem thêm</h5>
+                    <div class="row g-2">
+                        @if (Model.PostImages != null && Model.PostImages.Any())
+                        {
+                            foreach (var img in Model.PostImages)
+                            {
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <img src="@img.ImageUrl" alt="Ảnh phụ" class="img-thumbnail" onclick="openImageModal(this.src)" style="cursor: pointer; height: 200px; object-fit: cover;">
+                                </div>
+                            }
+                        }
 
-@if (Model.PostVideos != null && Model.PostVideos.Any())
-{
-    <h4 class="mt-4">Video</h4>
-    <div class="video-grid">
-        @foreach (var video in Model.PostVideos)
-        {
-            <video class="grid-image mt-2 mb-2" onclick="openVideoModal('@video.VideoUrl')">
-                <source src="@video.VideoUrl" type="video/mp4" />
-                Trình duyệt không hỗ trợ phát video.
-            </video>
-        }
+                        @if (!string.IsNullOrEmpty(Model.VideoUrl))
+                        {
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="ratio ratio-16x9">
+                                    <video onclick="openVideoModal('@Model.VideoUrl')" style="cursor: pointer;">
+                                        <source src="@Model.VideoUrl" type="video/mp4">
+                                    </video>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.PostVideos != null && Model.PostVideos.Any())
+                        {
+                            foreach (var video in Model.PostVideos)
+                            {
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <div class="ratio ratio-16x9">
+                                        <video onclick="openVideoModal('@video.VideoUrl')" style="cursor: pointer;">
+                                            <source src="@video.VideoUrl" type="video/mp4">
+                                        </video>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
     </div>
-}
+
+    <!-- Bình luận -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-4">Bình luận (@Model.Comments?.Count ?? 0)</h4>
+
+            <!-- Form thêm bình luận -->
+            <form asp-action="AddComment" method="post" class="mb-4">
+                <input type="hidden" name="postId" value="@Model.Id">
+                <div class="mb-3">
+                    <textarea name="content" class="form-control" rows="3" placeholder="Viết bình luận..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+            </form>
+
+            <!-- Danh sách bình luận -->
+            @if (Model.Comments != null && Model.Comments.Any())
+            {
+                <div class="comment-section">
+                    @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedAt))
+                    {
+                        <div class="comment-item mb-3 pb-3 border-bottom">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 me-3">
+                                    <img src="https://ui-avatars.com/api/?name=@comment.UserName&background=random" class="rounded-circle" width="40" height="40" alt="@comment.UserName">
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0 fw-bold">@comment.UserName</h6>
+                                        <small class="text-muted">@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                    <p class="mb-2">@comment.Content</p>
+                                    <div class="comment-actions">
+                                        <form asp-action="LikeComment" asp-controller="Comment" asp-route-id="@comment.Id" method="post" class="d-inline like-form">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="commentId" value="@comment.Id">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary like-btn">
+                                                <i class="far fa-thumbs-up"></i>
+                                                <span class="like-count">@comment.Likes</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-3 text-muted">
+                    Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="/Posts" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+</div>
 
 <!-- Modal xem ảnh -->
-<div id="imageModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index:9999;">
-    <span onclick="closeImageModal()" style="position:absolute; top:10px; right:20px; color:white; font-size:30px; cursor:pointer;">&times;</span>
-    <span id="prevBtn" onclick="showPrevImage()" style="position:absolute; left:20px; top:50%; transform:translateY(-50%); font-size:40px; color:white; cursor:pointer;">&#10094;</span>
-    <span id="nextBtn" onclick="showNextImage()" style="position:absolute; right:20px; top:50%; transform:translateY(-50%); font-size:40px; color:white; cursor:pointer;">&#10095;</span>
-    <img id="modalImage" style="max-width:90%; max-height:90%;" />
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white" onclick="closeImageModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" class="img-fluid" style="max-height: 80vh;">
+            </div>
+            <div class="modal-footer border-0 justify-content-between">
+                <button type="button" class="btn btn-outline-light" onclick="showPrevImage()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button type="button" class="btn btn-outline-light" onclick="showNextImage()">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
-<script>
-    let currentImageIndex = 0;
-    let imageList = [];
-
-    function openImageModal(src) {
-        // Tìm tất cả ảnh trong grid
-        imageList = Array.from(document.querySelectorAll(".grid-image")).filter(img => img.tagName.toLowerCase() === "img");
-        currentImageIndex = imageList.findIndex(img => img.src === src);
-
-        document.getElementById('modalImage').src = src;
-        document.getElementById('imageModal').style.display = 'flex';
-    }
-
-    function closeImageModal() {
-        document.getElementById('imageModal').style.display = 'none';
-    }
-
-    function showNextImage() {
-        if (imageList.length === 0) return;
-        currentImageIndex = (currentImageIndex + 1) % imageList.length;
-        document.getElementById('modalImage').src = imageList[currentImageIndex].src;
-    }
-
-    function showPrevImage() {
-        if (imageList.length === 0) return;
-        currentImageIndex = (currentImageIndex - 1 + imageList.length) % imageList.length;
-        document.getElementById('modalImage').src = imageList[currentImageIndex].src;
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        window.scrollTo(0, document.body.scrollHeight);
-    });
-</script>
-
 
 <!-- Modal xem video -->
-<div id="videoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index:9999;">
-    <span onclick="closeVideoModal()" style="position:absolute; top:10px; right:20px; color:white; font-size:30px; cursor:pointer;">&times;</span>
-    <video id="modalVideo" controls style="max-width:90%; max-height:90%; border-radius:8px;"></video>
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white" onclick="closeVideoModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <video id="modalVideo" class="w-100" controls></video>
+            </div>
+        </div>
+    </div>
 </div>
 
-<hr />
-
-<h3>Bình luận</h3>
-@if (Model.Comments != null && Model.Comments.Any())
-{
-    <ul class="list-group">
-        @foreach (var comment in Model.Comments)
-        {
-            <li class="list-group-item">
-                <strong>@comment.UserName:</strong> @comment.Content<br />
-                <small class="text-muted">@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
-            </li>
-        }
-    </ul>
-}
-else
-{
-    <p>Chưa có bình luận nào.</p>
-}
-
-<form asp-action="AddComment" method="post">
-    <input type="hidden" name="PostId" value="@Model.Id" />
-    <div class="form-group">
-        <label for="commentContent">Thêm bình luận:</label>
-        <textarea name="Content" class="form-control" required></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary mt-2">Gửi bình luận</button>
-</form>
-
-<hr />
-
-<a href="/Posts/Edit/@Model.Id" class="btn btn-warning">Chỉnh sửa</a>
-<a href="/Posts/Delete/@Model.Id" class="btn btn-danger">Xóa</a>
-<a href="/Posts" class="btn btn-secondary">Quay lại</a>
-
-@section Styles {
+ @section Styles {
     <style>
-        .image-grid, .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
+        .comment-item {
+            transition: all 0.2s;
         }
 
-        .grid-image {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-            border: 1px solid #ccc;
+            .comment-item:hover {
+                background-color: #2c2c2c;
+                border-radius: 5px;
+            }
+
+            .comment-item small {
+                color: white !important;
+            }
+
+        .comment-actions .btn {
+            padding: 0.15rem 0.5rem;
+            font-size: 0.8rem;
         }
 
-            .grid-image:hover {
+        .card {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .img-thumbnail {
+            transition: transform 0.2s;
+        }
+
+            .img-thumbnail:hover {
                 transform: scale(1.03);
             }
+
+        #imageModal .modal-content,
+        #videoModal .modal-content {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Style cho nút like */
+        .like-btn.liked {
+            color: #0d6efd !important;
+            border-color: #0d6efd !important;
+        }
+
+        .like-btn i {
+            transition: all 0.3s;
+        }
+
+        .like-btn.liked i {
+            transform: scale(1.2);
+        }
     </style>
 }
 
 @section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
+        // Xử lý modal ảnh/video
+        let currentImageIndex = 0;
+        let imageList = [];
+
         function openImageModal(src) {
+            imageList = Array.from(document.querySelectorAll("img[onclick^='openImageModal']"));
+            currentImageIndex = imageList.findIndex(img => img.src === src);
             document.getElementById('modalImage').src = src;
-            document.getElementById('imageModal').style.display = 'flex';
+            var modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
         }
 
         function closeImageModal() {
-            document.getElementById('imageModal').style.display = 'none';
+            var modal = bootstrap.Modal.getInstance(document.getElementById('imageModal'));
+            modal.hide();
+        }
+
+        function showNextImage() {
+            if (imageList.length === 0) return;
+            currentImageIndex = (currentImageIndex + 1) % imageList.length;
+            document.getElementById('modalImage').src = imageList[currentImageIndex].src;
+        }
+
+        function showPrevImage() {
+            if (imageList.length === 0) return;
+            currentImageIndex = (currentImageIndex - 1 + imageList.length) % imageList.length;
+            document.getElementById('modalImage').src = imageList[currentImageIndex].src;
         }
 
         function openVideoModal(src) {
             const video = document.getElementById('modalVideo');
             video.src = src;
+            video.load(); // reset thời gian phát
+            var modal = new bootstrap.Modal(document.getElementById('videoModal'));
+            modal.show();
             video.play();
-            document.getElementById('videoModal').style.display = 'flex';
         }
 
         function closeVideoModal() {
             const video = document.getElementById('modalVideo');
             video.pause();
+            video.currentTime = 0;
             video.src = "";
-            document.getElementById('videoModal').style.display = 'none';
+            var modal = bootstrap.Modal.getInstance(document.getElementById('videoModal'));
+            modal.hide();
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
-            window.scrollTo(0, document.body.scrollHeight);
+        // Auto stop video when modal is hidden (kể cả nhấn ESC hoặc click ra ngoài)
+        document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
+            const video = document.getElementById('modalVideo');
+            video.pause();
+            video.currentTime = 0;
+            video.src = "";
+        });
+
+        // Xử lý like bằng AJAX
+        document.querySelectorAll('.like-form').forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const form = this;
+                const button = form.querySelector('.like-btn');
+                const likeCount = form.querySelector('.like-count');
+                const icon = form.querySelector('i');
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'RequestVerificationToken': form.querySelector('input[name="__RequestVerificationToken"]').value,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: `commentId=${form.querySelector('input[name="commentId"]').value}`
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        likeCount.textContent = data.newLikeCount;
+                        button.classList.add('liked');
+                        icon.classList.replace('far', 'fas');
+
+                        setTimeout(() => {
+                            button.classList.remove('liked');
+                        }, 1000);
+                    } else {
+                        console.error('Like failed:', response.status);
+                        form.submit();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    form.submit();
+                }
+            });
+        });
+
+        // Phím tắt ESC cho ảnh
+        document.addEventListener('keydown', function (e) {
+            if (document.getElementById('imageModal').classList.contains('show')) {
+                if (e.key === 'ArrowRight') {
+                    showNextImage();
+                } else if (e.key === 'ArrowLeft') {
+                    showPrevImage();
+                } else if (e.key === 'Escape') {
+                    closeImageModal();
+                }
+            }
         });
     </script>
+}
+
 }
