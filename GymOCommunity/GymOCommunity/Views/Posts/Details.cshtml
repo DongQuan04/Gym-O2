@@ -2,7 +2,7 @@
 
 <div class="container py-4">
     <!-- Bài viết chính -->
-    <div class="card mb-4 shadow-sm">
+    <div class="card mb-4 shadow-sm bg-dark text-light">
         <div class="card-body">
             <h2 class="card-title">@Model.Title</h2>
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -68,26 +68,39 @@
     </div>
 
     <!-- Bình luận -->
-    <div class="card shadow-sm">
+    <div class="card shadow-sm bg-dark text-light">
         <div class="card-body">
-            <h4 class="card-title mb-4">Bình luận (@Model.Comments?.Count ?? 0)</h4>
+            <h4 class="card-title mb-4">Bình luận (@Model.Comments?.Count)</h4>
 
             <!-- Form thêm bình luận -->
-            <form asp-action="AddComment" method="post" class="mb-4">
+            <form asp-action="AddComment" method="post" class="mb-4" enctype="multipart/form-data">
                 <input type="hidden" name="postId" value="@Model.Id">
+                <input type="hidden" name="parentCommentId" id="parentCommentId" value="">
+
                 <div class="mb-3">
-                    <textarea name="content" class="form-control" rows="3" placeholder="Viết bình luận..." required></textarea>
+                    <textarea name="content" class="form-control bg-secondary text-light" rows="3" placeholder="Viết bình luận..." required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+
+                <div class="mb-3">
+                    <label class="form-label">Thêm Video (tối đa 50MB)</label>
+                    <input type="file" name="videoFile" class="form-control bg-secondary text-light" accept="video/*">
+                </div>
+
+                <div id="replyToSection" class="mb-2" style="display: none;">
+                    <small>Đang trả lời: <span id="replyToUser" class="fw-bold"></span></small>
+                    <button type="button" class="btn btn-sm btn-link text-danger" onclick="cancelReply()">Hủy</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Gửi </button>
             </form>
 
             <!-- Danh sách bình luận -->
             @if (Model.Comments != null && Model.Comments.Any())
             {
                 <div class="comment-section">
-                    @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedAt))
+                    @foreach (var comment in Model.Comments.Where(c => c.ParentCommentId == null).OrderByDescending(c => c.CreatedAt))
                     {
-                        <div class="comment-item mb-3 pb-3 border-bottom">
+                        <div class="comment-item mb-3 pb-3 border-bottom border-secondary">
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <img src="https://ui-avatars.com/api/?name=@comment.UserName&background=random" class="rounded-circle" width="40" height="40" alt="@comment.UserName">
@@ -98,7 +111,20 @@
                                         <small class="text-muted">@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
                                     </div>
                                     <p class="mb-2">@comment.Content</p>
+
+                                    @if (!string.IsNullOrEmpty(comment.VideoUrl))
+                                    {
+                                        <div class="ratio ratio-16x9 mb-2">
+                                            <video controls class="rounded">
+                                                <source src="@comment.VideoUrl" type="video/mp4">
+                                            </video>
+                                        </div>
+                                    }
+
                                     <div class="comment-actions">
+                                        <button class="btn btn-sm btn-link text-light reply-btn" data-comment-id="@comment.Id" data-user-name="@comment.UserName">
+                                            <i class="fas fa-reply"></i> Trả lời
+                                        </button>
                                         <form asp-action="LikeComment" asp-controller="Comment" asp-route-id="@comment.Id" method="post" class="d-inline like-form">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="commentId" value="@comment.Id">
@@ -108,6 +134,53 @@
                                             </button>
                                         </form>
                                     </div>
+
+                                    <!-- Phần reply -->
+                                    @if (comment.Replies.Any())
+                                    {
+                                        <div class="replies mt-3 ps-3 border-start border-secondary">
+                                            @foreach (var reply in comment.Replies.OrderByDescending(r => r.CreatedAt))
+                                            {
+                                                <div class="reply-item mb-3">
+                                                    <div class="d-flex">
+                                                        <div class="flex-shrink-0 me-2">
+                                                            <img src="https://ui-avatars.com/api/?name=@reply.UserName&background=random" class="rounded-circle" width="32" height="32" alt="@reply.UserName">
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <small class="fw-bold">@reply.UserName</small>
+                                                                <small class="text-muted">@reply.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                                            </div>
+                                                            <p class="mb-1">@reply.Content</p>
+
+                                                            @if (!string.IsNullOrEmpty(reply.VideoUrl))
+                                                            {
+                                                                <div class="ratio ratio-16x9 mb-1">
+                                                                    <video controls class="rounded" style="max-width: 200px;">
+                                                                        <source src="@reply.VideoUrl" type="video/mp4">
+                                                                    </video>
+                                                                </div>
+                                                            }
+
+                                                            <div class="reply-actions">
+                                                                <button class="btn btn-sm btn-link p-0 text-light reply-btn" data-comment-id="@comment.Id" data-user-name="@reply.UserName">
+                                                                    <i class="fas fa-reply"></i>
+                                                                </button>
+                                                                <form asp-action="LikeComment" asp-controller="Comment" asp-route-id="@reply.Id" method="post" class="d-inline like-form">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <input type="hidden" name="commentId" value="@reply.Id">
+                                                                    <button type="submit" class="btn btn-sm btn-outline-secondary like-btn">
+                                                                        <i class="far fa-thumbs-up"></i>
+                                                                        <span class="like-count">@reply.Likes</span>
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -166,19 +239,16 @@
     </div>
 </div>
 
- @section Styles {
+@section Styles {
     <style>
         .comment-item {
             transition: all 0.2s;
+            border-radius: 8px;
+            padding: 10px;
         }
 
             .comment-item:hover {
                 background-color: #2c2c2c;
-                border-radius: 5px;
-            }
-
-            .comment-item small {
-                color: white !important;
             }
 
         .comment-actions .btn {
@@ -217,6 +287,40 @@
         .like-btn.liked i {
             transform: scale(1.2);
         }
+
+        /* Style cho reply */
+        .replies {
+            border-left: 2px solid #444;
+        }
+
+        .reply-item {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .reply-btn {
+            color: #aaa;
+            text-decoration: none;
+        }
+
+            .reply-btn:hover {
+                color: #0d6efd;
+            }
+
+        .form-control.bg-secondary {
+            background-color: #333 !important;
+            border-color: #444;
+            color: white !important;
+        }
+
+            .form-control.bg-secondary:focus {
+                background-color: #333;
+                border-color: #0d6efd;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+                color: white;
+            }
     </style>
 }
 
@@ -255,7 +359,7 @@
         function openVideoModal(src) {
             const video = document.getElementById('modalVideo');
             video.src = src;
-            video.load(); // reset thời gian phát
+            video.load();
             var modal = new bootstrap.Modal(document.getElementById('videoModal'));
             modal.show();
             video.play();
@@ -270,7 +374,7 @@
             modal.hide();
         }
 
-        // Auto stop video when modal is hidden (kể cả nhấn ESC hoặc click ra ngoài)
+        // Xử lý khi modal video bị đóng
         document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
             const video = document.getElementById('modalVideo');
             video.pause();
@@ -280,7 +384,7 @@
 
         // Xử lý like bằng AJAX
         document.querySelectorAll('.like-form').forEach(form => {
-            form.addEventListener('submit', async function (e) {
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 const form = this;
@@ -302,26 +406,50 @@
                     if (response.ok) {
                         const data = await response.json();
 
+                        // Cập nhật số like
                         likeCount.textContent = data.newLikeCount;
+
+                        // Thêm hiệu ứng
                         button.classList.add('liked');
                         icon.classList.replace('far', 'fas');
 
+                        // Reset sau 1 giây
                         setTimeout(() => {
                             button.classList.remove('liked');
                         }, 1000);
                     } else {
                         console.error('Like failed:', response.status);
-                        form.submit();
+                        form.submit(); // Fallback nếu AJAX fail
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    form.submit();
+                    form.submit(); // Fallback nếu có lỗi
                 }
             });
         });
 
+        // Xử lý nút reply
+        document.querySelectorAll('.reply-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const commentId = this.getAttribute('data-comment-id');
+                const userName = this.getAttribute('data-user-name');
+
+                document.getElementById('parentCommentId').value = commentId;
+                document.getElementById('replyToUser').textContent = userName;
+                document.getElementById('replyToSection').style.display = 'block';
+
+                // Scroll đến form comment
+                document.querySelector('textarea[name="content"]').focus();
+            });
+        });
+
+        function cancelReply() {
+            document.getElementById('parentCommentId').value = '';
+            document.getElementById('replyToSection').style.display = 'none';
+        }
+
         // Phím tắt ESC cho ảnh
-        document.addEventListener('keydown', function (e) {
+        document.addEventListener('keydown', function(e) {
             if (document.getElementById('imageModal').classList.contains('show')) {
                 if (e.key === 'ArrowRight') {
                     showNextImage();
@@ -332,7 +460,20 @@
                 }
             }
         });
+
+        // Validate kích thước video trước khi upload
+        document.querySelector('input[name="videoFile"]').addEventListener('change', function() {
+            const maxSize = 50 * 1024 * 1024; // 50MB
+            if (this.files[0] && this.files[0].size > maxSize) {
+                alert('Video không được vượt quá 50MB');
+                this.value = '';
+            }
+        });
     </script>
 }
-
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
 }

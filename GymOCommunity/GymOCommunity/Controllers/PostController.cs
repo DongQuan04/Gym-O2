@@ -1,5 +1,6 @@
 ﻿using GymOCommunity.Data;
 using GymOCommunity.Models;
+using GymOCommunity.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +10,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace GymOCommunity.Controllers
@@ -16,6 +18,7 @@ namespace GymOCommunity.Controllers
     [Authorize]
     public class PostsController : Controller
     {
+        private readonly ILogger<PostsController> _logger;
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<IdentityUser> _userManager;
@@ -37,7 +40,11 @@ namespace GymOCommunity.Controllers
         public IActionResult Index()
         {
             var posts = _context.Posts.ToList();
-            return View(posts);
+            var viewModel = new PostListViewModel
+            {
+                Posts = posts
+            };
+            return View(viewModel);
         }
 
         [AllowAnonymous]
@@ -85,7 +92,7 @@ namespace GymOCommunity.Controllers
         }
 
         [HttpPost]
-        [RequestSizeLimit(104857600)] // 100MB
+        [RequestSizeLimit(1073741824)] // 1GB
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Post post)
         {
@@ -298,26 +305,69 @@ namespace GymOCommunity.Controllers
             }
         }
 
+        // Phương thức sửa đổi (kết hợp cả 2 phương thức AddComment)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddComment(int postId, string content)
+        [RequestSizeLimit(100 * 1024 * 1024)] // Giới hạn 100MB cho request
+        public async Task<IActionResult> AddComment(int postId, string content, int? parentCommentId = null, IFormFile videoFile = null)
         {
-            var post = await _context.Posts.FindAsync(postId);
-            if (post == null)
-                return NotFound();
-
-            var comment = new Comment
+            try
             {
-                PostId = postId,
-                Content = content,
-                CreatedAt = DateTime.Now,
-                UserName = User.Identity?.Name ?? "Anonymous",
-                UserId = _userManager.GetUserId(User) ?? "Anonymous"
-            };
+                var post = await _context.Posts.FindAsync(postId);
+                if (post == null) return NotFound();
 
-            _context.Comments.Add(comment);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Details", new { id = postId });
+                // Validate video size
+                if (videoFile != null && videoFile.Length > 50 * 1024 * 1024) // 50MB
+                {
+                    TempData["ErrorMessage"] = "Video không được vượt quá 50MB";
+                    return RedirectToAction("Details", new { id = postId });
+                }
+
+                var comment = new Comment
+                {
+                    Content = content,
+                    PostId = postId,
+                    ParentCommentId = parentCommentId,
+                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    UserName = User.Identity?.Name,
+                    CreatedAt = DateTime.Now
+                };
+
+                // Xử lý upload video
+                if (videoFile != null && videoFile.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "comment_videos");
+
+                    // Tạo thư mục nếu chưa tồn tại
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    // Tạo tên file duy nhất
+                    var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(videoFile.FileName)}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    // Lưu file
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await videoFile.CopyToAsync(fileStream);
+                    }
+
+                    comment.VideoUrl = $"/uploads/comment_videos/{uniqueFileName}";
+                }
+
+                _context.Comments.Add(comment);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Details", new { id = postId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi thêm bình luận có video");
+                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi gửi bình luận";
+                return RedirectToAction("Details", new { id = postId });
+            }
         }
 
         private bool IsAuthorized(string postOwnerId)

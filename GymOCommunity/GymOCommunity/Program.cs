@@ -23,6 +23,17 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders();
 
+// video
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 100 * 1024 * 1024; // 100MB
+});
+
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 100 * 1024 * 1024;
+});
+
 // (sửa lỗi redirect sai URL Login)
 builder.Services.ConfigureApplicationCookie(options =>
 {

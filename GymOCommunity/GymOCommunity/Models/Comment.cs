@@ -13,7 +13,18 @@ namespace GymOCommunity.Models
         [Required]
         public string Content { get; set; }
 
+        public string? VideoUrl { get; set; } // Thêm trường video
+
+        [NotMapped]
+        public IFormFile? VideoFile { get; set; } // File video upload
+
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        // Quan hệ cha-con
+        public int? ParentCommentId { get; set; }
+        public virtual Comment? ParentComment { get; set; }
+        public virtual ICollection<Comment> Replies { get; set; } = new List<Comment>();
 
         // Khóa ngoại liên kết với bài viết
         [ForeignKey("Post")]
@@ -30,5 +41,7 @@ namespace GymOCommunity.Models
         public string UserName { get; set; }
 
         public int Likes { get; set; } = 0;
+
+
     }
 }

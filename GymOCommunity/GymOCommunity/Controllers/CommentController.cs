@@ -68,5 +68,6 @@ namespace GymOCommunity.Controllers
             // Fallback cho trình duyệt không hỗ trợ JavaScript
             return RedirectToAction("Details", "Posts", new { id = comment.PostId });
         }
+
     }
 }

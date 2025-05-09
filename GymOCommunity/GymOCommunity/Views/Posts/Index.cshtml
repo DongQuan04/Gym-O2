@@ -1,4 +1,5 @@
-﻿@model List<GymOCommunity.Models.Post>
+﻿@model GymOCommunity.Models.ViewModels.PostListViewModel
+
 
 <h2>Danh sách bài viết</h2>
 <a href="/Posts/Create" class="btn btn-primary">Tạo bài viết mới</a>
@@ -10,7 +11,7 @@
         <th>Ngày tạo</th>
         <th>Hành động</th>
     </tr>
-    @foreach (var post in Model)
+    @foreach (var post in Model.Posts)
     {
         <tr>
             <td>
