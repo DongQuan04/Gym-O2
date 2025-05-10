@@ -123,6 +123,9 @@ namespace GymOCommunity.Controllers
             _context.Posts.Add(post);
             await _context.SaveChangesAsync(); // Cần lưu trước để có post.Id
 
+            return RedirectToAction("Index", "Profile", new { userId = post.UserId });
+
+
             // Thêm video
             if (post.VideoFiles != null && post.VideoFiles.Any())
             {
