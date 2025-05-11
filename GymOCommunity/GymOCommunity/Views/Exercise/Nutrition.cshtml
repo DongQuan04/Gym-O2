@@ -4,17 +4,11 @@
 }
 
 <div class="container mt-5 text-white">
-    <h2 class="text-3xl font-bold mb-4">🔧 Tùy chỉnh Chế độ Dinh dưỡng</h2>
+    <h2 class="text-warning fw-bold mb-4">🧮 Tùy chỉnh Chế độ Dinh dưỡng</h2>
     <div class="row g-3">
-        <div class="col-md-4">
-            <input type="number" id="height" placeholder="Chiều cao (cm)" class="form-control" />
-        </div>
-        <div class="col-md-4">
-            <input type="number" id="weight" placeholder="Cân nặng (kg)" class="form-control" />
-        </div>
-        <div class="col-md-4">
-            <input type="number" id="age" placeholder="Tuổi" class="form-control" />
-        </div>
+        <div class="col-md-4"><input type="number" id="height" placeholder="Chiều cao (cm)" class="form-control" /></div>
+        <div class="col-md-4"><input type="number" id="weight" placeholder="Cân nặng (kg)" class="form-control" /></div>
+        <div class="col-md-4"><input type="number" id="age" placeholder="Tuổi" class="form-control" /></div>
         <div class="col-md-4">
             <select id="gender" class="form-select">
                 <option value="Nam">Nam</option>
@@ -28,9 +22,7 @@
                 <option value="Giữ cân">Giữ cân</option>
             </select>
         </div>
-        <div class="col-md-4">
-            <input type="number" id="sessions" placeholder="Buổi tập/tuần" class="form-control" />
-        </div>
+        <div class="col-md-4"><input type="number" id="sessions" placeholder="Buổi tập/tuần" class="form-control" /></div>
         <div class="col-md-4">
             <select id="bodyType" class="form-select">
                 <option value="Ectomorph">Ectomorph</option>
@@ -46,37 +38,17 @@
     <hr class="my-5">
 
     <div>
-        <h3 class="text-2xl font-bold mb-3">🥗 Gợi ý thực đơn</h3>
+        <h3 class="text-warning mb-3">🥗 Gợi ý thực đơn</h3>
         <div class="row g-4" id="mealSuggestion">
-            <div class="col-md-6">
-                <div class="card bg-dark text-white p-3 rounded-4">
-                    <h5>🍳 Bữa sáng</h5>
-                    <p id="breakfast"></p>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card bg-dark text-white p-3 rounded-4">
-                    <h5>🍱 Bữa trưa</h5>
-                    <p id="lunch"></p>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card bg-dark text-white p-3 rounded-4">
-                    <h5>🍽️ Bữa tối</h5>
-                    <p id="dinner"></p>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card bg-dark text-white p-3 rounded-4">
-                    <h5>🥜 Snack</h5>
-                    <p id="snack"></p>
-                </div>
-            </div>
+            <div class="col-md-6"><div class="card bg-dark text-white p-3 rounded-4"><h5>🍳 Bữa sáng</h5><div id="breakfast"></div></div></div>
+            <div class="col-md-6"><div class="card bg-dark text-white p-3 rounded-4"><h5>🍱 Bữa trưa</h5><div id="lunch"></div></div></div>
+            <div class="col-md-6"><div class="card bg-dark text-white p-3 rounded-4"><h5>🍽️ Bữa tối</h5><div id="dinner"></div></div></div>
+            <div class="col-md-6"><div class="card bg-dark text-white p-3 rounded-4"><h5>🥜 Snack</h5><div id="snack"></div></div></div>
         </div>
     </div>
 
     <div class="mt-5">
-        <h3 class="text-2xl font-bold mb-3">📊 Tổng kết dinh dưỡng</h3>
+        <h3 class="text-warning mb-3">📊 Tổng kết dinh dưỡng</h3>
         <div class="card bg-dark text-white p-4 rounded-4">
             <p><strong>TDEE:</strong> <span id="tdeeValue">--</span> kcal/ngày</p>
             <p><strong>Protein:</strong> <span id="proteinValue">--</span></p>
@@ -84,31 +56,57 @@
             <p><strong>Fat:</strong> <span id="fatValue">--</span></p>
         </div>
     </div>
-
 </div>
 
 @section Scripts {
     <script>
         const mealPlans = {
-            "Tăng cơ": {
-                breakfast: "Yến mạch + whey + chuối + bơ đậu phộng",
-                lunch: "Cơm gạo lứt + ức gà áp chảo + rau củ luộc",
-                dinner: "Nui nguyên cám + bò xào nấm + trứng luộc",
-                snack: "Whey shake + hạt điều + chuối"
+            "Nam": {
+                "Tăng cơ": {
+                    breakfast: ["🥣 Yến mạch – 60g", "🥛 Whey – 1 muỗng", "🍌 Chuối – 1 trái", "🥜 Bơ đậu phộng – 15g"],
+                    lunch: ["🍚 Cơm gạo lứt – 100g", "🍗 Ức gà áp chảo – 150g", "🥦 Rau củ luộc – 100g"],
+                    dinner: ["🍝 Nui nguyên cám – 80g", "🥩 Bò xào nấm – 150g", "🥚 Trứng luộc – 1 quả"],
+                    snack: ["🥤 Whey shake – 1 muỗng", "🥜 Hạt điều – 20g", "🍌 Chuối – 1 quả"]
+                },
+                "Giảm mỡ": {
+                    breakfast: ["🥚 Trứng luộc – 2 quả", "🥦 Bông cải xanh – 100g", "🍎 Trái cây ít đường – 150g"],
+                    lunch: ["🐟 Cá hồi hấp – 150g", "🥗 Salad rau xanh – 100g", "🍠 Khoai lang – 100g"],
+                    dinner: ["🍗 Ức gà – 120g", "🥣 Súp lơ – 100g", "🍄 Nấm luộc – 50g"],
+                    snack: ["🥜 Hạnh nhân – 20g", "🥛 Sữa chua không đường – 100g"]
+                },
+                "Giữ cân": {
+                    breakfast: ["🍞 Bánh mì nguyên cám – 2 lát", "🍳 Trứng ốp – 1 quả", "🥣 Sữa chua Hy Lạp – 100g"],
+                    lunch: ["🍚 Cơm trắng – 100g", "🥩 Thịt nạc – 100g", "🥬 Canh rau cải – 1 chén"],
+                    dinner: ["🍳 Trứng chiên không dầu – 2 quả", "🍠 Khoai lang – 80g", "🥗 Salad trộn – 100g"],
+                    snack: ["🍏 Táo – 1 quả", "🥜 Bơ hạt – 15g", "🥚 Trứng luộc – 1 quả"]
+                }
             },
-            "Giảm mỡ": {
-                breakfast: "Trứng luộc + bông cải xanh + trái cây ít đường",
-                lunch: "Cá hồi hấp + salad rau xanh + khoai lang",
-                dinner: "Ức gà + súp lơ + nấm luộc",
-                snack: "Hạnh nhân + sữa chua không đường"
-            },
-            "Giữ cân": {
-                breakfast: "Bánh mì nguyên cám + trứng ốp + sữa chua Hy Lạp",
-                lunch: "Cơm trắng vừa đủ + thịt nạc + canh rau cải",
-                dinner: "Trứng chiên không dầu + khoai lang + salad trộn",
-                snack: "Táo + bơ hạt + trứng luộc"
+            "Nữ": {
+                "Tăng cơ": {
+                    breakfast: ["🥣 Yến mạch – 50g", "🥛 Whey – 1 muỗng", "🍌 Chuối – 1/2 trái", "🥜 Hạnh nhân – 10g"],
+                    lunch: ["🍚 Cơm gạo lứt – 80g", "🍗 Ức gà – 100g", "🥗 Salad rau củ – 100g"],
+                    dinner: ["🍝 Nui nguyên cám – 60g", "🥩 Bò xào rau – 100g", "🥚 Trứng luộc – 1 quả"],
+                    snack: ["🥜 Hạt điều – 15g", "🥛 Sữa hạnh nhân – 150ml"]
+                },
+                "Giảm mỡ": {
+                    breakfast: ["🥚 Trứng luộc – 1 quả", "🥦 Bông cải xanh – 80g", "🍓 Trái cây ít đường – 100g"],
+                    lunch: ["🐟 Cá hồi – 100g", "🥗 Salad trộn – 80g", "🍠 Khoai lang – 80g"],
+                    dinner: ["🍗 Ức gà – 100g", "🥣 Súp rau – 1 chén", "🍄 Nấm – 50g"],
+                    snack: ["🥜 Hạt hạnh nhân – 10g", "🥛 Sữa chua không đường – 100g"]
+                },
+                "Giữ cân": {
+                    breakfast: ["🍞 Bánh mì nguyên cám – 1 lát", "🍳 Trứng ốp – 1 quả", "🥣 Sữa chua không đường – 100g"],
+                    lunch: ["🍚 Cơm vừa đủ – 80g", "🥩 Thịt nạc – 80g", "🥬 Canh rau cải – 1 chén"],
+                    dinner: ["🍳 Trứng hấp – 1 quả", "🍠 Khoai lang – 60g", "🥗 Salad trộn – 80g"],
+                    snack: ["🍏 Táo – 1 quả", "🥜 Hạt điều – 10g"]
+                }
             }
         };
+
+        function renderMeal(mealId, items) {
+            const container = document.getElementById(mealId);
+            container.innerHTML = "<ul class='mb-0'>" + items.map(i => `<li>${i}</li>`).join('') + "</ul>";
+        }
 
         function generatePlan() {
             const height = parseFloat(document.getElementById("height").value);
@@ -119,25 +117,16 @@
             const sessions = parseInt(document.getElementById("sessions").value);
             const bodyType = document.getElementById("bodyType").value;
 
-            // Tính BMR
-            let BMR = (gender === "Nam") ?
-                10 * weight + 6.25 * height - 5 * age + 5 :
-                10 * weight + 6.25 * height - 5 * age - 161;
+            let BMR = gender === "Nam"
+                ? 10 * weight + 6.25 * height - 5 * age + 5
+                : 10 * weight + 6.25 * height - 5 * age - 161;
 
-            // Hệ số vận động
             const activityFactor = sessions <= 2 ? 1.3 : sessions <= 4 ? 1.55 : 1.75;
-
             let TDEE = BMR * activityFactor;
-
-            // Điều chỉnh theo mục tiêu
             if (goal === "Tăng cơ") TDEE += 300;
             else if (goal === "Giảm mỡ") TDEE -= 300;
 
-            // Điều chỉnh theo loại cơ thể
-            let proteinRatio = 0.3;
-            let carbRatio = 0.5;
-            let fatRatio = 0.2;
-
+            let proteinRatio = 0.3, carbRatio = 0.5, fatRatio = 0.2;
             if (bodyType === "Ectomorph") {
                 carbRatio = 0.55; proteinRatio = 0.25; fatRatio = 0.2;
             } else if (bodyType === "Endomorph") {
@@ -148,14 +137,12 @@
             const carbGrams = Math.round((TDEE * carbRatio) / 4);
             const fatGrams = Math.round((TDEE * fatRatio) / 9);
 
-            // Hiển thị thực đơn
-            const plan = mealPlans[goal];
-            document.getElementById("breakfast").innerText = plan.breakfast;
-            document.getElementById("lunch").innerText = plan.lunch;
-            document.getElementById("dinner").innerText = plan.dinner;
-            document.getElementById("snack").innerText = plan.snack;
+            const plan = mealPlans[gender][goal];
+            renderMeal("breakfast", plan.breakfast);
+            renderMeal("lunch", plan.lunch);
+            renderMeal("dinner", plan.dinner);
+            renderMeal("snack", plan.snack);
 
-            // Hiển thị TDEE và Macro
             document.getElementById("tdeeValue").innerText = Math.round(TDEE);
             document.getElementById("proteinValue").innerText = proteinGrams + "g";
             document.getElementById("carbValue").innerText = carbGrams + "g";
@@ -163,6 +150,7 @@
         }
     </script>
 }
+
 
 
 <!-- Footer -->
@@ -203,6 +191,18 @@
                         <i class="fab fa-youtube"></i>
                     </a>
 
+                </div>
+
+
+
+                <!--nút Messenger và Điện thoại-->
+                <div class="floating-buttons">
+                    <a href="https://www.messenger.com/c/993659855635864/t/9356117234476365" target="_blank" class="messenger-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Facebook_Messenger_logo_2020.svg/768px-Facebook_Messenger_logo_2020.svg.png" alt="Messenger">
+                    </a>
+                    <a href="tel:0967355455" class="phone-btn">
+                        <img src="https://cdn0.iconfinder.com/data/icons/social-messaging-ui-color-shapes-3/3/54-1024.png" alt="Call">
+                    </a>
                 </div>
 
 

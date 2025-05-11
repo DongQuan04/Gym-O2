@@ -28,12 +28,14 @@ namespace GymOCommunity.Controllers
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
             UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            ILogger<PostsController> logger)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
             _roleManager = roleManager;
+            _logger = logger;
         }
 
         [AllowAnonymous]
@@ -52,7 +54,7 @@ namespace GymOCommunity.Controllers
         {
             var post = _context.Posts
                 .Include(p => p.Comments)
-                        .ThenInclude(c => c.User)
+                    .ThenInclude(c => c.User)
                 .Include(p => p.PostImages)
                 .Include(p => p.PostVideos)
                 .FirstOrDefault(p => p.Id == id);
@@ -83,11 +85,9 @@ namespace GymOCommunity.Controllers
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                // Trả về JSON nếu là AJAX request
                 return Json(new { newLikeCount = comment.Likes });
             }
 
-            // Fallback cho trình duyệt không hỗ trợ JavaScript
             return RedirectToAction("Details", "Posts", new { id = comment.PostId });
         }
 
@@ -121,65 +121,58 @@ namespace GymOCommunity.Controllers
             }
 
             _context.Posts.Add(post);
-            await _context.SaveChangesAsync(); // Cần lưu trước để có post.Id
+            await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Profile", new { userId = post.UserId });
-
-
-            // Thêm video
-            if (post.VideoFiles != null && post.VideoFiles.Any())
+            // Xử lý nhiều ảnh bổ sung
+            var additionalImages = Request.Form.Files.Where(f => f.Name == "AdditionalImages");
+            foreach (var image in additionalImages)
             {
-                foreach (var video in post.VideoFiles)
+                if (image.Length > 0)
                 {
-                    if (video.Length > 0)
+                    string uniqueFileName = Guid.NewGuid() + "_" + Path.GetFileName(image.FileName);
+                    string imagePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(imagePath, FileMode.Create))
                     {
-                        string uniqueVideoName = Guid.NewGuid() + "_" + Path.GetFileName(video.FileName);
-                        string videoPath = Path.Combine(uploadsFolder, uniqueVideoName);
-
-                        using (var stream = new FileStream(videoPath, FileMode.Create))
-                        {
-                            await video.CopyToAsync(stream);
-                        }
-
-                        var postVideo = new PostVideo
-                        {
-                            PostId = post.Id,
-                            VideoUrl = "/uploads/" + uniqueVideoName
-                        };
-
-                        _context.PostVideos.Add(postVideo);
+                        await image.CopyToAsync(stream);
                     }
+
+                    var postImage = new PostImage
+                    {
+                        PostId = post.Id,
+                        ImageUrl = "/uploads/" + uniqueFileName
+                    };
+
+                    _context.PostImages.Add(postImage);
                 }
             }
 
-            // Thêm ảnh bổ sung
-            if (post.AdditionalImages != null && post.AdditionalImages.Any())
+            // Xử lý nhiều video
+            var videoFiles = Request.Form.Files.Where(f => f.Name == "VideoFiles");
+            foreach (var video in videoFiles)
             {
-                foreach (var image in post.AdditionalImages)
+                if (video.Length > 0)
                 {
-                    if (image.Length > 0)
+                    string uniqueVideoName = Guid.NewGuid() + "_" + Path.GetFileName(video.FileName);
+                    string videoPath = Path.Combine(uploadsFolder, uniqueVideoName);
+
+                    using (var stream = new FileStream(videoPath, FileMode.Create))
                     {
-                        string uniqueFileName = Guid.NewGuid() + "_" + Path.GetFileName(image.FileName);
-                        string imagePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                        using (var stream = new FileStream(imagePath, FileMode.Create))
-                        {
-                            await image.CopyToAsync(stream);
-                        }
-
-                        var postImage = new PostImage
-                        {
-                            PostId = post.Id,
-                            ImageUrl = "/uploads/" + uniqueFileName
-                        };
-
-                        _context.PostImages.Add(postImage);
+                        await video.CopyToAsync(stream);
                     }
+
+                    var postVideo = new PostVideo
+                    {
+                        PostId = post.Id,
+                        VideoUrl = "/uploads/" + uniqueVideoName
+                    };
+
+                    _context.PostVideos.Add(postVideo);
                 }
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Profile", new { userId = post.UserId });
         }
 
         public IActionResult Edit(int id)
@@ -308,7 +301,6 @@ namespace GymOCommunity.Controllers
             }
         }
 
-        // Phương thức sửa đổi (kết hợp cả 2 phương thức AddComment)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestSizeLimit(100 * 1024 * 1024)] // Giới hạn 100MB cho request
@@ -341,17 +333,14 @@ namespace GymOCommunity.Controllers
                 {
                     var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "comment_videos");
 
-                    // Tạo thư mục nếu chưa tồn tại
                     if (!Directory.Exists(uploadsFolder))
                     {
                         Directory.CreateDirectory(uploadsFolder);
                     }
 
-                    // Tạo tên file duy nhất
                     var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(videoFile.FileName)}";
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                    // Lưu file
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         await videoFile.CopyToAsync(fileStream);
@@ -378,6 +367,20 @@ namespace GymOCommunity.Controllers
             var currentUserId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
             return isAdmin || postOwnerId == currentUserId;
+        }
+    }
+}
+
+public static class FormFileExtensions
+{
+    public static IEnumerable<IFormFile> Where(this IFormFileCollection formFiles, Func<IFormFile, bool> predicate)
+    {
+        foreach (var file in formFiles)
+        {
+            if (predicate(file))
+            {
+                yield return file;
+            }
         }
     }
 }
