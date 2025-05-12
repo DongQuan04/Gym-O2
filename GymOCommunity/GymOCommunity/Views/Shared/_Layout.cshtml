@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GymOCommunity</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/GymOCommunity.styles.css" asp-append-version="true" />
@@ -57,6 +57,40 @@
                 color: #0d6efd !important;
             }
 
+        /* User dropdown */
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+        }
+
+        .dropdown-toggle::after {
+            display: none;
+        }
+
+        .dropdown-menu {
+            min-width: 200px;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .dropdown-item i {
+                width: 20px;
+                text-align: center;
+                margin-right: 8px;
+            }
+
         /* Responsive adjustments */
         @@media (max-width: 992px) {
             .navbar-collapse {
@@ -74,16 +108,19 @@
                 margin-bottom: 0.5rem;
             }
 
-            .navbar-text {
-                display: block;
-                margin-bottom: 1rem;
-                padding: 0.5rem 1rem;
+            .dropdown-menu {
+                background-color: rgba(33, 37, 41, 0.98);
+                border: 1px solid rgba(255, 255, 255, 0.1);
             }
 
-            .auth-buttons {
-                padding: 1rem 0;
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            .dropdown-item {
+                color: rgba(255, 255, 255, 0.7);
             }
+
+                .dropdown-item:hover {
+                    color: #fff;
+                    background-color: rgba(255, 255, 255, 0.1);
+                }
         }
 
         /* Dark mode toggle button */
@@ -162,15 +199,28 @@
                     <div class="d-flex align-items-center auth-buttons">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <div class="d-flex flex-column flex-lg-row align-items-center">
-                                <span class="navbar-text text-light me-lg-3 mb-2 mb-lg-0">
-                                    <i class="fas fa-user-circle me-1"></i> @User.Identity.Name
-                                </span>
-                                <form method="post" asp-area="Identity" asp-page="/Account/Logout" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-danger">
-                                        <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
-                                    </button>
-                                </form>
+                            <div class="dropdown">
+                                <a href="#" class="d-flex align-items-center text-light text-decoration-none dropdown-toggle"
+                                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle fa-lg me-1"></i>
+                                    <span class="d-none d-lg-inline">Tài khoản</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                                            <i class="fas fa-user-cog me-2"></i> Quản lý tài khoản
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout"
+                                              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </div>
                         }
                         else

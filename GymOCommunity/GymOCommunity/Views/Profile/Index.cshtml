@@ -1,20 +1,42 @@
 ﻿@model GymOCommunity.ViewModels.UserProfileViewModel
 
 @{
-    ViewData["Title"] = $"Trang cá nhân - {Model.User.UserName}";
+    ViewData["Title"] = $"Trang cá nhân - {Model.User?.UserName}";
 }
 
-<div class="container py-4">
-    <div class="card mb-4 shadow-sm">
-        <div class="card-body text-center">
-            <h2 class="card-title">@Model.User.UserName</h2>
-            <p class="text-muted">Thành viên từ @Model.User.Email</p>
+<div class="container mt-4">
+    <!-- Thông tin người dùng -->
+    <div class="profile-header mb-4 d-flex">
+        <div class="avatar-container me-4">
+            @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+            {
+                <img src="@Model.AvatarUrl" alt="Avatar" class="profile-avatar rounded-circle border" style="width: 120px; height: 120px; object-fit: cover;" />
+            }
+            else
+            {
+                <div class="profile-avatar-placeholder bg-secondary text-white d-flex align-items-center justify-content-center rounded-circle" style="width: 120px; height: 120px;">
+                    Ảnh đại diện
+                </div>
+            }
+        </div>
+        <div class="profile-info">
+            <h2>@Model.FullName</h2>
+            <p>Email: @Model.Email</p>
+
+            @* Hiển thị Location nếu có *@
+            @if (!string.IsNullOrEmpty(Model.Location))
+            {
+                <p>Địa điểm: @Model.Location</p>
+            }
+
+            <a asp-action="Edit" class="btn btn-outline-primary mt-2">Chỉnh sửa thông tin</a>
         </div>
     </div>
 
+    <!-- Bài viết đã chia sẻ -->
     <h4 class="mb-3">Bài viết đã chia sẻ (@Model.Posts.Count)</h4>
 
-    @if (Model.Posts.Any())
+    @if (Model.Posts != null && Model.Posts.Any())
     {
         <div class="row">
             @foreach (var post in Model.Posts)
@@ -23,7 +45,7 @@
                     <div class="card h-100">
                         @if (!string.IsNullOrEmpty(post.ImageUrl))
                         {
-                            <img src="@post.ImageUrl" class="card-img-top" alt="Ảnh bài viết" style="height: 200px; object-fit: cover;">
+                            <img src="@post.ImageUrl" class="card-img-top" alt="Ảnh bài viết" style="height: 200px; object-fit: cover;" />
                         }
                         <div class="card-body">
                             <h5 class="card-title">@post.Title</h5>

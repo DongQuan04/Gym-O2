@@ -378,3 +378,18 @@ a {
         background-color: rgba(13, 110, 253, 0.1); /* nền nhẹ */
     }
 
+
+.navbar-nav .dropdown-toggle::after {
+    display: none;
+}
+
+.navbar-nav .nav-link i {
+    font-size: 1.2rem;
+}
+
+.dropdown-item form button {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+}
