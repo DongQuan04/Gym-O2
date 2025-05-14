@@ -55,101 +55,155 @@
             <p><strong>Carb:</strong> <span id="carbValue">--</span></p>
             <p><strong>Fat:</strong> <span id="fatValue">--</span></p>
         </div>
+        <div class="text-end mt-3">
+            <button onclick="exportToExcel()" class="btn btn-success">
+                📤 Xuất Excel
+            </button>
+        </div>
+
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        const mealPlans = {
-            "Nam": {
-                "Tăng cơ": {
-                    breakfast: ["🥣 Yến mạch – 60g", "🥛 Whey – 1 muỗng", "🍌 Chuối – 1 trái", "🥜 Bơ đậu phộng – 15g"],
-                    lunch: ["🍚 Cơm gạo lứt – 100g", "🍗 Ức gà áp chảo – 150g", "🥦 Rau củ luộc – 100g"],
-                    dinner: ["🍝 Nui nguyên cám – 80g", "🥩 Bò xào nấm – 150g", "🥚 Trứng luộc – 1 quả"],
-                    snack: ["🥤 Whey shake – 1 muỗng", "🥜 Hạt điều – 20g", "🍌 Chuối – 1 quả"]
-                },
-                "Giảm mỡ": {
-                    breakfast: ["🥚 Trứng luộc – 2 quả", "🥦 Bông cải xanh – 100g", "🍎 Trái cây ít đường – 150g"],
-                    lunch: ["🐟 Cá hồi hấp – 150g", "🥗 Salad rau xanh – 100g", "🍠 Khoai lang – 100g"],
-                    dinner: ["🍗 Ức gà – 120g", "🥣 Súp lơ – 100g", "🍄 Nấm luộc – 50g"],
-                    snack: ["🥜 Hạnh nhân – 20g", "🥛 Sữa chua không đường – 100g"]
-                },
-                "Giữ cân": {
-                    breakfast: ["🍞 Bánh mì nguyên cám – 2 lát", "🍳 Trứng ốp – 1 quả", "🥣 Sữa chua Hy Lạp – 100g"],
-                    lunch: ["🍚 Cơm trắng – 100g", "🥩 Thịt nạc – 100g", "🥬 Canh rau cải – 1 chén"],
-                    dinner: ["🍳 Trứng chiên không dầu – 2 quả", "🍠 Khoai lang – 80g", "🥗 Salad trộn – 100g"],
-                    snack: ["🍏 Táo – 1 quả", "🥜 Bơ hạt – 15g", "🥚 Trứng luộc – 1 quả"]
+                const mealPlans = {
+                    "Nam": {
+                        "Tăng cơ": {
+                            breakfast: ["🍚 Cơm + Trứng – 2 quả", "🥛 Sữa tươi – 250ml", "🍌 Chuối – 1 quả"],
+                            lunch: ["🍗 Ức gà – 150g", "🍚 Cơm gạo lứt – 100g", "🥗 Salad rau – 100g"],
+                            dinner: ["🥩 Bò xào nấm – 150g", "🥔 Khoai lang – 100g", "🥦 Bông cải – 100g"],
+                            snack: ["🥜 Hạnh nhân – 30g", "🥤 Whey – 1 muỗng"]
+                        },
+                        "Giảm mỡ": {
+                            breakfast: ["🥚 Trứng luộc – 2 quả", "🥒 Dưa leo – 100g", "☕ Cà phê đen – 1 ly"],
+                            lunch: ["🐟 Cá hấp – 150g", "🥬 Rau cải – 100g", "🍠 Khoai lang – 80g"],
+                            dinner: ["🍗 Ức gà – 100g", "🥣 Súp rau củ – 1 chén", "🍄 Nấm luộc – 50g"],
+                            snack: ["🥜 Hạt điều – 20g", "🍎 Táo – 1 quả"]
+                        },
+                        "Giữ cân": {
+                            breakfast: ["🍞 Bánh mì đen – 2 lát", "🥚 Trứng ốp – 1 quả", "🥣 Sữa chua Hy Lạp – 100g"],
+                            lunch: ["🍚 Cơm trắng – 100g", "🥩 Thịt nạc – 100g", "🥬 Canh rau cải – 1 chén"],
+                            dinner: ["🍗 Ức gà nướng – 100g", "🍠 Khoai lang – 80g", "🥗 Salad trộn – 100g"],
+                            snack: ["🍌 Chuối – 1 quả", "🥛 Sữa chua – 100g"]
+                        }
+                    },
+                    "Nữ": {
+                        "Tăng cơ": {
+                            breakfast: ["🍞 Bánh mì nguyên cám – 1 lát", "🥚 Trứng – 1 quả", "🍌 Chuối – 1 quả"],
+                            lunch: ["🍗 Ức gà – 100g", "🍠 Khoai lang – 80g", "🥗 Salad rau – 100g"],
+                            dinner: ["🥩 Thịt bò – 100g", "🥦 Bông cải – 100g", "🥣 Súp rau – 1 chén"],
+                            snack: ["🥛 Sữa chua – 100g", "🥜 Hạt hạnh nhân – 15g"]
+                        },
+                        "Giảm mỡ": {
+                            breakfast: ["🥚 Trứng luộc – 1 quả", "🥒 Dưa leo – 100g"],
+                            lunch: ["🐟 Cá hấp – 100g", "🥬 Salad – 80g", "🍠 Khoai lang – 80g"],
+                            dinner: ["🍗 Ức gà – 80g", "🍄 Nấm – 50g", "🥣 Súp lơ – 1 chén"],
+                            snack: ["🍏 Táo – 1 quả", "🥜 Hạt điều – 10g"]
+                        },
+                        "Giữ cân": {
+                            breakfast: ["🍞 Bánh mì đen – 1 lát", "🥚 Trứng – 1 quả", "🥣 Sữa chua – 100g"],
+        lunch: ["🍚 Cơm trắng – 80g", "🥩 Thịt nạc – 80g", "🥬 Rau luộc – 100g"],
+                            dinner: ["🍗 Ức gà – 100g", "🍠 Khoai lang – 80g", "🥗 Salad – 80g"],
+                            snack: ["🍌 Chuối – 1 quả", "🥛 Sữa – 100ml"]
+                        }
+                    }
+                };
+
+                function renderMeal(mealId, items) {
+                    const container = document.getElementById(mealId);
+                    container.innerHTML = "<ul>" + items.map(i => `<li>${i}</li>`).join("") + "</ul>";
                 }
-            },
-            "Nữ": {
-                "Tăng cơ": {
-                    breakfast: ["🥣 Yến mạch – 50g", "🥛 Whey – 1 muỗng", "🍌 Chuối – 1/2 trái", "🥜 Hạnh nhân – 10g"],
-                    lunch: ["🍚 Cơm gạo lứt – 80g", "🍗 Ức gà – 100g", "🥗 Salad rau củ – 100g"],
-                    dinner: ["🍝 Nui nguyên cám – 60g", "🥩 Bò xào rau – 100g", "🥚 Trứng luộc – 1 quả"],
-                    snack: ["🥜 Hạt điều – 15g", "🥛 Sữa hạnh nhân – 150ml"]
-                },
-                "Giảm mỡ": {
-                    breakfast: ["🥚 Trứng luộc – 1 quả", "🥦 Bông cải xanh – 80g", "🍓 Trái cây ít đường – 100g"],
-                    lunch: ["🐟 Cá hồi – 100g", "🥗 Salad trộn – 80g", "🍠 Khoai lang – 80g"],
-                    dinner: ["🍗 Ức gà – 100g", "🥣 Súp rau – 1 chén", "🍄 Nấm – 50g"],
-                    snack: ["🥜 Hạt hạnh nhân – 10g", "🥛 Sữa chua không đường – 100g"]
-                },
-                "Giữ cân": {
-                    breakfast: ["🍞 Bánh mì nguyên cám – 1 lát", "🍳 Trứng ốp – 1 quả", "🥣 Sữa chua không đường – 100g"],
-                    lunch: ["🍚 Cơm vừa đủ – 80g", "🥩 Thịt nạc – 80g", "🥬 Canh rau cải – 1 chén"],
-                    dinner: ["🍳 Trứng hấp – 1 quả", "🍠 Khoai lang – 60g", "🥗 Salad trộn – 80g"],
-                    snack: ["🍏 Táo – 1 quả", "🥜 Hạt điều – 10g"]
+
+                function generatePlan() {
+                    const height = parseFloat(document.getElementById("height").value);
+                    const weight = parseFloat(document.getElementById("weight").value);
+                    const age = parseInt(document.getElementById("age").value);
+                    const gender = document.getElementById("gender").value;
+                    const goal = document.getElementById("goal").value;
+                    const sessions = parseInt(document.getElementById("sessions").value);
+                    const bodyType = document.getElementById("bodyType").value;
+
+                    // BMR & TDEE
+                    const BMR = (gender === "Nam")
+                        ? 10 * weight + 6.25 * height - 5 * age + 5
+                        : 10 * weight + 6.25 * height - 5 * age - 161;
+
+                    const activityFactor = sessions <= 2 ? 1.3 : sessions <= 4 ? 1.55 : 1.75;
+                    let TDEE = BMR * activityFactor;
+                    if (goal === "Tăng cơ") TDEE += 300;
+                    else if (goal === "Giảm mỡ") TDEE -= 300;
+
+                    // Macro phân bổ
+                    let proteinRatio = 0.3, carbRatio = 0.5, fatRatio = 0.2;
+                    if (bodyType === "Ectomorph") {
+                        carbRatio = 0.55; proteinRatio = 0.25;
+                    } else if (bodyType === "Endomorph") {
+                        carbRatio = 0.4; proteinRatio = 0.35; fatRatio = 0.25;
+                    }
+
+                    const proteinGrams = Math.round((TDEE * proteinRatio) / 4);
+                    const carbGrams = Math.round((TDEE * carbRatio) / 4);
+                    const fatGrams = Math.round((TDEE * fatRatio) / 9);
+
+                    const plan = mealPlans[gender][goal];
+                    renderMeal("breakfast", plan.breakfast);
+                    renderMeal("lunch", plan.lunch);
+                    renderMeal("dinner", plan.dinner);
+                    renderMeal("snack", plan.snack);
+
+                    document.getElementById("tdeeValue").innerText = Math.round(TDEE);
+                    document.getElementById("proteinValue").innerText = proteinGrams + "g";
+                    document.getElementById("carbValue").innerText = carbGrams + "g";
+                    document.getElementById("fatValue").innerText = fatGrams + "g";
                 }
-            }
-        };
 
-        function renderMeal(mealId, items) {
-            const container = document.getElementById(mealId);
-            container.innerHTML = "<ul class='mb-0'>" + items.map(i => `<li>${i}</li>`).join('') + "</ul>";
-        }
+                      function exportToExcel() {
+                    const gender = document.getElementById("gender").value;
+                    const goal = document.getElementById("goal").value;
+                    const plan = mealPlans[gender][goal];
 
-        function generatePlan() {
-            const height = parseFloat(document.getElementById("height").value);
-            const weight = parseFloat(document.getElementById("weight").value);
-            const age = parseInt(document.getElementById("age").value);
-            const gender = document.getElementById("gender").value;
-            const goal = document.getElementById("goal").value;
-            const sessions = parseInt(document.getElementById("sessions").value);
-            const bodyType = document.getElementById("bodyType").value;
+                    const extractItems = (mealName, items) =>
+                        items.map(entry => {
+        // Biểu tượng (emoji) là ký tự đầu tiên
+                            const icon = entry.trim().substring(0, 2).match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g) ? entry.trim().substring(0, 2) : entry.trim().charAt(0);
+                            const cleaned = entry.replace(icon, "").trim();
+                            const [foodName, weight] = cleaned.split("–").map(s => s.trim());
+                            return {
+                                "Bữa": mealName,
+                                "Biểu tượng": icon,
+                                "Món ăn": foodName,
+                                "Khối lượng": weight || ""
+                            };
+                        });
 
-            let BMR = gender === "Nam"
-                ? 10 * weight + 6.25 * height - 5 * age + 5
-                : 10 * weight + 6.25 * height - 5 * age - 161;
+                    const rows = [
+                        ...extractItems("Bữa sáng", plan.breakfast),
+                        ...extractItems("Bữa trưa", plan.lunch),
+                        ...extractItems("Bữa tối", plan.dinner),
+                        ...extractItems("Snack", plan.snack),
+                        {},
+                        { "Bữa": "TDEE", "Khối lượng": document.getElementById("tdeeValue").innerText + " kcal" },
+                        { "Bữa": "Protein", "Khối lượng": document.getElementById("proteinValue").innerText },
+                        { "Bữa": "Carb", "Khối lượng": document.getElementById("carbValue").innerText },
+                        { "Bữa": "Fat", "Khối lượng": document.getElementById("fatValue").innerText }
+                    ];
 
-            const activityFactor = sessions <= 2 ? 1.3 : sessions <= 4 ? 1.55 : 1.75;
-            let TDEE = BMR * activityFactor;
-            if (goal === "Tăng cơ") TDEE += 300;
-            else if (goal === "Giảm mỡ") TDEE -= 300;
+                    const ws = XLSX.utils.json_to_sheet(rows, {
+                        header: ["Bữa", "Biểu tượng", "Món ăn", "Khối lượng"]
+                    });
 
-            let proteinRatio = 0.3, carbRatio = 0.5, fatRatio = 0.2;
-            if (bodyType === "Ectomorph") {
-                carbRatio = 0.55; proteinRatio = 0.25; fatRatio = 0.2;
-            } else if (bodyType === "Endomorph") {
-                carbRatio = 0.4; proteinRatio = 0.35; fatRatio = 0.25;
-            }
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "DinhDuong");
+                    const fileName = `DinhDuong_${gender}_${goal.replace(/\s/g, "")}.xlsx`;
+                    XLSX.writeFile(wb, fileName);
+                }
 
-            const proteinGrams = Math.round((TDEE * proteinRatio) / 4);
-            const carbGrams = Math.round((TDEE * carbRatio) / 4);
-            const fatGrams = Math.round((TDEE * fatRatio) / 9);
-
-            const plan = mealPlans[gender][goal];
-            renderMeal("breakfast", plan.breakfast);
-            renderMeal("lunch", plan.lunch);
-            renderMeal("dinner", plan.dinner);
-            renderMeal("snack", plan.snack);
-
-            document.getElementById("tdeeValue").innerText = Math.round(TDEE);
-            document.getElementById("proteinValue").innerText = proteinGrams + "g";
-            document.getElementById("carbValue").innerText = carbGrams + "g";
-            document.getElementById("fatValue").innerText = fatGrams + "g";
-        }
     </script>
 }
+
+
+
 
 
 
