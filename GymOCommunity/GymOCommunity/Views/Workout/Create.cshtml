@@ -1,0 +1,96 @@
+﻿@model GymOCommunity.Models.WorkoutLog
+@{
+    ViewData["Title"] = "Ghi nhật ký tập luyện";
+}
+
+<h2 class="text-warning mb-4">📓 Ghi nhật ký tập luyện</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="Date"></label>
+        <input asp-for="Date" type="date" class="form-control" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MuscleGroup">Nhóm cơ</label>
+        <select asp-for="MuscleGroup" class="form-select" id="muscleGroup" onchange="updateSuggestions()">
+            <option value="">-- Chọn nhóm cơ --</option>
+            <option>Ngực</option>
+            <option>Lưng</option>
+            <option>Chân</option>
+            <option>Tay</option>
+            <option>Bụng</option>
+        </select>
+        <span asp-validation-for="MuscleGroup" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label>Bài tập gợi ý</label>
+        <select class="form-select" id="suggestedExercise" onchange="fillExerciseName()">
+            <option value="">-- Chọn bài tập gợi ý --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ExerciseName">Hoặc tự nhập bài tập</label>
+        <input asp-for="ExerciseName" class="form-control" id="exerciseNameInput" placeholder="Nhập nếu không chọn ở trên" />
+        <span asp-validation-for="ExerciseName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Sets"></label>
+        <input asp-for="Sets" type="number" class="form-control" />
+        <span asp-validation-for="Sets" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Reps"></label>
+        <input asp-for="Reps" type="number" class="form-control" />
+        <span asp-validation-for="Reps" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Notes"></label>
+        <textarea asp-for="Notes" class="form-control"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">💾 Lưu lại</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const suggestions = {
+            "Ngực": ["Dumbbell Press", "Push-up", "Incline Bench Press"],
+            "Lưng": ["Pull-up", "Barbell Row", "Lat Pulldown"],
+            "Chân": ["Squat", "Lunge", "Leg Press"],
+            "Tay": ["Bicep Curl", "Tricep Dip", "Hammer Curl"],
+            "Bụng": ["Plank", "Crunch", "Leg Raise"]
+        };
+
+        function updateSuggestions() {
+            const group = document.getElementById("muscleGroup").value;
+            const list = document.getElementById("suggestedExercise");
+            list.innerHTML = '<option value="">-- Chọn bài tập gợi ý --</option>';
+
+            if (suggestions[group]) {
+                suggestions[group].forEach(ex => {
+                    const option = document.createElement("option");
+                    option.value = ex;
+                    option.text = ex;
+                    list.appendChild(option);
+                });
+            }
+        }
+
+        function fillExerciseName() {
+            const selected = document.getElementById("suggestedExercise").value;
+            if (selected) {
+                document.getElementById("exerciseNameInput").value = selected;
+            }
+        }
+    </script>
+}

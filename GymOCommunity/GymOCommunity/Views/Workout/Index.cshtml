@@ -1,0 +1,192 @@
+﻿@model List<GymOCommunity.Models.WorkoutLog>
+
+@{
+    ViewData["Title"] = "Lịch sử tập luyện";
+    var muscleStats = ViewBag.MuscleStats as IEnumerable<dynamic>;
+    var progressStats = ViewBag.ProgressStats as IEnumerable<dynamic>;
+    var muscleGroups = ViewBag.MuscleGroups as List<string>;
+    var thisWeekLogs = Model.Where(x => x.Date >= DateTime.Today.AddDays(-7)).Count();
+    var feedback = thisWeekLogs switch
+    {
+        >= 5 => "🔥 Tuyệt vời! Bạn đang rất chăm chỉ!",
+        >= 3 => "💪 Tốt lắm! Duy trì đều nhé!",
+        >= 1 => "📈 Hãy cố gắng tập đều hơn!",
+        _ => "😴 Bạn chưa tập tuần này! Bắt đầu lại thôi!"
+    };
+}
+
+<!-- Section: Header -->
+<h4 class="text-info mb-3">📊 Thống kê tập luyện</h4>
+
+<!-- Section: Chart Controls -->
+<div class="d-flex flex-wrap gap-3 align-items-center mb-3">
+    <button class="btn btn-outline-warning" onclick="showChart('muscle')">Theo nhóm cơ</button>
+    <button class="btn btn-outline-info" onclick="showChart('daily')">Theo ngày</button>
+    <button class="btn btn-outline-primary" onclick="showChart('progress')">Tiến độ reps</button>
+
+    <select id="muscleFilter" class="form-select w-auto" onchange="filterMuscleGroup()">
+        <option value="">-- Lọc theo nhóm cơ --</option>
+        @foreach (var group in muscleGroups)
+        {
+            <option value="@group">@group</option>
+        }
+    </select>
+</div>
+
+<!-- Section: Charts -->
+<canvas id="muscleChart" height="100"></canvas>
+<canvas id="dailyChart" height="100" style="display:none;"></canvas>
+<canvas id="progressChart" height="100" style="display:none;"></canvas>
+
+<!-- Section: Workout History Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-warning mb-0">📈 Lịch sử tập luyện</h2>
+    <a class="btn btn-success fw-bold" href="@Url.Action("Create", "Workout")">➕ Ghi buổi tập mới</a>
+</div>
+
+<!-- Section: Workout Table -->
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Bạn chưa ghi nhận buổi tập nào. Hãy bắt đầu bằng nút "Ghi buổi tập mới".</div>
+}
+else
+{
+    <table class="table table-dark table-bordered">
+        <thead>
+            <tr>
+                <th>Ngày</th>
+                <th>Nhóm cơ</th>
+                <th>Bài tập</th>
+                <th>Hiệp</th>
+                <th>Lặp</th>
+                <th>Ghi chú</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model)
+            {
+                <tr>
+                    <td>@log.Date.ToString("dd/MM/yyyy")</td>
+                    <td>@log.MuscleGroup</td>
+                    <td>@log.ExerciseName</td>
+                    <td>@log.Sets</td>
+                    <td>@log.Reps</td>
+                    <td>@log.Notes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<!-- Section: Weekly Summary -->
+<div class="alert alert-secondary rounded-4 px-4 py-3">
+    <strong>📅 Tổng buổi tập 7 ngày gần nhất:</strong> <span class="text-warning fw-bold">@thisWeekLogs</span><br />
+    <strong>🧠 Nhận xét:</strong> <span>@feedback</span>
+</div>
+
+<!-- Section: Scripts -->
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let muscleChart, dailyChart, progressChart;
+
+        // Chart data from Razor
+        const muscleLabels = @Html.Raw(Json.Serialize(muscleStats.Select(s => s.MuscleGroup)));
+        const muscleData = @Html.Raw(Json.Serialize(muscleStats.Select(s => s.Count)));
+
+        const dailyLabels = @Html.Raw(Json.Serialize(
+        Model.GroupBy(x => x.Date.Date).OrderBy(x => x.Key).Select(g => g.Key.ToString("dd/MM"))
+    ));
+        const dailyData = @Html.Raw(Json.Serialize(
+        Model.GroupBy(x => x.Date.Date).OrderBy(x => x.Key).Select(g => g.Count())
+    ));
+
+        const progressLabels = @Html.Raw(Json.Serialize(progressStats.Select(g => g.Date.ToString("dd/MM"))));
+        const progressData = @Html.Raw(Json.Serialize(progressStats.Select(g => g.TotalReps)));
+
+        // Init charts
+        muscleChart = new Chart(document.getElementById('muscleChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: muscleLabels,
+                datasets: [{
+                    label: 'Số buổi tập',
+                    data: muscleData,
+                    backgroundColor: '#ffc107'
+                }]
+            }
+        });
+
+        dailyChart = new Chart(document.getElementById('dailyChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dailyLabels,
+                datasets: [{
+                    label: 'Buổi tập mỗi ngày',
+                    data: dailyData,
+                    fill: false,
+                    borderColor: '#0dcaf0',
+                    tension: 0.3
+                }]
+            }
+        });
+
+        progressChart = new Chart(document.getElementById('progressChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: progressLabels,
+                datasets: [{
+                    label: 'Tổng số reps mỗi ngày',
+                    data: progressData,
+                    fill: false,
+                    borderColor: '#4caf50',
+                    tension: 0.3
+                }]
+            }
+        });
+
+        // Show selected chart
+        function showChart(type) {
+            document.getElementById('muscleChart').style.display = (type === 'muscle') ? 'block' : 'none';
+            document.getElementById('dailyChart').style.display = (type === 'daily') ? 'block' : 'none';
+            document.getElementById('progressChart').style.display = (type === 'progress') ? 'block' : 'none';
+        }
+
+        // Filter by muscle group
+        function filterMuscleGroup() {
+            const value = document.getElementById('muscleFilter').value;
+            if (value === "") {
+                showChart('muscle');
+                return;
+            }
+
+            const filtered = {};
+        @foreach (var x in Model)
+        {
+            <text>
+                        if ("@x.MuscleGroup" === value) {
+                            filtered["@x.ExerciseName"] = (filtered["@x.ExerciseName"] || 0) + 1;
+                        }
+            </text>
+        }
+
+            const labels = Object.keys(filtered);
+            const data = Object.values(filtered);
+
+            muscleChart.destroy();
+            muscleChart = new Chart(document.getElementById('muscleChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số lần tập',
+                        data: data,
+                        backgroundColor: '#f06292'
+                    }]
+                }
+            });
+
+            showChart('muscle');
+        }
+    </script>
+}

@@ -17,6 +17,8 @@ namespace GymOCommunity.Data
         public DbSet<PostImage> PostImages { get; set; }
         public DbSet<PostVideo> PostVideos { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<WorkoutLog> WorkoutLogs { get; set; }
+
 
 
 

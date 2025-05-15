@@ -1,16 +1,40 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using GymOCommunity.Models.ViewModels;
+using GymOCommunity.Services;
+using Microsoft.AspNetCore.Mvc;
 
-namespace GymOCommunity.Controllers
+public class ExerciseController : Controller
 {
-    public class ExerciseController : Controller
+    private readonly NutritionService _nutritionService;
+    public IActionResult Index()
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
-        public IActionResult Nutrition()
-        {
-            return View();
-        }
+        return View();
+    }
+    public ExerciseController()
+    {
+        _nutritionService = new NutritionService(); // Nếu dùng DI thì inject
+    }
+
+    [HttpGet]
+    public IActionResult Nutrition()
+    {
+        return View(new NutritionInputViewModel());
+    }
+
+    [HttpPost]
+    public IActionResult Nutrition(NutritionInputViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var mealPlan = _nutritionService.GenerateMealPlan(model);
+        ViewBag.MealPlan = mealPlan;
+        return View(model);
     }
 }
+
+
+
+
+
+
+

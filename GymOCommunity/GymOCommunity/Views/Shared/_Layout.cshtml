@@ -185,6 +185,13 @@
                                 <i class="fas fa-dumbbell me-1"></i> Bài tập
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Workout" ? "active" : "")"
+                               href="@Url.Action("Index", "Workout")">
+                                <i class="fas fa-running me-1"></i> Tập luyện
+                            </a>
+                        </li>
+
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
