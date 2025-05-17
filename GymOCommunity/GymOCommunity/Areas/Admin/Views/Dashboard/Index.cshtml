@@ -1,0 +1,167 @@
+﻿@using Newtonsoft.Json
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid mt-4">
+    <h2 class="fw-bold text-primary mb-4">📊 Quản trị hệ thống</h2>
+
+    <!-- Truy cập nhanh -->
+    <div class="mb-4">
+        <a class="btn btn-outline-primary me-2" href="/Admin/Users">👤 Quản lý người dùng</a>
+        <a class="btn btn-outline-success me-2" href="/Admin/Posts">📝 Quản lý bài viết</a>
+        <a class="btn btn-outline-danger" href="/Admin/Reports">🚨 Xem báo cáo</a>
+    </div>
+
+    <!-- Cảnh báo -->
+    @if (ViewBag.FlaggedPosts is IEnumerable<dynamic> flagged && flagged.Any())
+    {
+        <div class="alert alert-danger">
+            ⚠️ Có @flagged.Count() bài viết bị báo cáo nhiều lần!
+            <ul class="mb-0 mt-2">
+                @foreach (var post in flagged)
+                {
+                    <li>Bài viết ID: @post.PostId — @post.Count báo cáo</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- Tổng quan -->
+    <div class="row mb-4">
+        <div class="col-md-3"><div class="card text-white bg-primary"><div class="card-body"><h5>Người dùng</h5><p class="display-5">@ViewBag.UserCount</p></div></div></div>
+        <div class="col-md-3"><div class="card text-white bg-success"><div class="card-body"><h5>Bài viết</h5><p class="display-5">@ViewBag.PostCount</p></div></div></div>
+        <div class="col-md-3"><div class="card text-white bg-warning"><div class="card-body"><h5>Bình luận</h5><p class="display-5">@ViewBag.CommentCount</p></div></div></div>
+        <div class="col-md-3"><div class="card text-white bg-danger"><div class="card-body"><h5>Báo cáo</h5><p class="display-5">@ViewBag.ReportCount</p></div></div></div>
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="d-flex justify-content-end mb-2">
+        <select id="yearFilter" class="form-select w-auto">
+            <option disabled selected>-- Chọn năm --</option>
+            @if (ViewBag.Years is List<int> years)
+            {
+                foreach (var year in years)
+                {
+                    <option value="@year">@year</option>
+                }
+            }
+        </select>
+    </div>
+
+    <!-- Biểu đồ -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card p-3">
+                <h5 class="mb-3">📈 Tăng trưởng bài viết</h5>
+                <canvas id="postChart"></canvas>
+                <h5 class="mt-5 mb-3">📉 Tăng trưởng bình luận</h5>
+                <canvas id="commentChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Hoạt động & báo cáo -->
+        <div class="col-md-4">
+            <div class="card mb-3 p-3">
+                <h5>🕒 Hoạt động gần đây</h5>
+                <ul class="list-group">
+                    @if (ViewBag.RecentActivities is List<string> recent && recent.Any())
+                    {
+                        foreach (var activity in recent)
+                        {
+                            <li class="list-group-item">@activity</li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item">Không có hoạt động nào.</li>
+                    }
+                </ul>
+            </div>
+
+            <div class="card bg-danger text-white p-3">
+                <h5>🚨 Báo cáo gần đây</h5>
+                <ul class="list-group list-group-flush">
+                    @if (ViewBag.Reports is List<string> reports && reports.Any())
+                    {
+                        foreach (var r in reports)
+                        {
+                            <li class="list-group-item bg-danger text-white border-light">@r</li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item bg-danger text-white">Không có báo cáo.</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Người dùng mới -->
+    <div class="card mt-4 p-3">
+        <h5>🆕 Người dùng mới</h5>
+        <table class="table table-sm table-bordered">
+            <thead><tr><th>Email</th><th>Ngày tạo</th></tr></thead>
+            <tbody>
+                @if (ViewBag.NewUsers is List<dynamic> users && users.Any())
+                {
+                    foreach (var u in users)
+                    {
+                        <tr>
+                            <td>@u.Email</td>
+                            <td>@u.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="2">Không có người dùng mới.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const postGrowth = @Html.Raw(JsonConvert.SerializeObject(ViewBag.PostGrowth ?? new List<object>()));
+        const postLabels = postGrowth.map(x => x.Month);
+        const postData = postGrowth.map(x => x.Count);
+
+        new Chart(document.getElementById('postChart'), {
+            type: 'line',
+            data: {
+                labels: postLabels,
+                datasets: [{
+                    label: 'Bài viết',
+                    data: postData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            }
+        });
+
+        const commentGrowth = @Html.Raw(JsonConvert.SerializeObject(ViewBag.CommentGrowth ?? new List<object>()));
+        const commentLabels = commentGrowth.map(x => x.Month);
+        const commentData = commentGrowth.map(x => x.Count);
+
+        new Chart(document.getElementById('commentChart'), {
+            type: 'bar',
+            data: {
+                labels: commentLabels,
+                datasets: [{
+                    label: 'Bình luận',
+                    data: commentData,
+                    backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }]
+            }
+        });
+    </script>
+}

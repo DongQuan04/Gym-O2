@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+}
+
+<h2 class="text-primary fw-bold mb-4">👥 Danh sách người dùng</h2>
+
+<table class="table table-bordered table-dark table-striped align-middle">
+    <thead class="table-secondary text-center">
+        <tr>
+            <th>Email</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>
+                    @(user.LockoutEnd != null && user.LockoutEnd > DateTime.UtcNow
+                        ? "<span class='badge bg-danger'>🔒 Đã khóa</span>"
+                        : "<span class='badge bg-success'>✅ Hoạt động</span>")
+                    @Html.Raw("") <!-- cần để render HTML -->
+                </td>
+                <td class="text-center">
+                    @if (user.LockoutEnd == null || user.LockoutEnd <= DateTime.UtcNow)
+                    {
+                        <a href="@Url.Action("Lock", "Users", new { id = user.Id })" class="btn btn-sm btn-outline-danger">🔒 Khóa</a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Unlock", "Users", new { id = user.Id })" class="btn btn-sm btn-outline-success">🔓 Mở khóa</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

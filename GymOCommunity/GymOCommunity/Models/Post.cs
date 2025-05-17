@@ -48,5 +48,7 @@ namespace GymOCommunity.Models
         [NotMapped]
         public List<IFormFile> VideoFiles { get; set; } = new List<IFormFile>();
 
+        public string? Description { get; set; }
+
     }
 }

@@ -1,0 +1,19 @@
+﻿@model GymOCommunity.Models.Report
+
+@{
+    ViewData["Title"] = "Báo cáo bài viết";
+}
+
+<h2>Báo cáo bài viết</h2>
+
+<form asp-action="Create">
+    <input type="hidden" asp-for="PostId" value="@ViewBag.PostId" />
+
+    <div class="form-group">
+        <label asp-for="Description" class="control-label">Lý do báo cáo</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-danger mt-2">Gửi báo cáo</button>
+</form>

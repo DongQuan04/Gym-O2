@@ -1,0 +1,34 @@
+﻿@model List<GymOCommunity.Models.Report>
+
+@{
+    ViewData["Title"] = "Báo cáo bài viết";
+}
+
+<h2 class="text-danger mb-4">🚨 Danh sách báo cáo</h2>
+
+@if (!Model.Any())
+{
+    <p>Không có báo cáo nào.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Post ID</th>
+                <th>Lý do</th>
+                <th>Thời gian</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in Model)
+            {
+                <tr>
+                    <td>@report.PostId</td>
+                    <td>@report.Description</td>
+                    <td>@report.ReportedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,33 @@
+﻿@model IEnumerable<GymOCommunity.Models.Post>
+@{
+    ViewData["Title"] = "Quản lý bài viết";
+}
+
+<h2 class="text-success">📝 Danh sách bài viết</h2>
+
+<table class="table table-dark table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Tiêu đề</th>
+            <th>Người đăng</th>
+            <th>Ngày đăng</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var post in Model)
+        {
+            <tr>
+                <td>@post.Title</td>
+                <td>@post.UserId</td>
+                <td>@post.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>
+                    <a href="@Url.Action("Delete", "Posts", new { id = post.Id })"
+                       class="btn btn-sm btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa bài này?');">
+                        Xóa
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

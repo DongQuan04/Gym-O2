@@ -1,4 +1,6 @@
-﻿@model GymOCommunity.Models.Post
+﻿@inject UserManager<IdentityUser> UserManager
+@using Microsoft.AspNetCore.Identity
+@model GymOCommunity.Models.Post
 
 <div class="container py-4">
     <!-- Bài viết chính -->
@@ -7,9 +9,20 @@
             <h2 class="card-title">@Model.Title</h2>
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <small class="text-muted">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+
                 <div>
-                    <a href="/Posts/Edit/@Model.Id" class="btn btn-sm btn-outline-warning">Chỉnh sửa</a>
-                    <a href="/Posts/Delete/@Model.Id" class="btn btn-sm btn-outline-danger">Xóa</a>
+                    <!-- Báo cáo -->
+                    <a asp-controller="Reports" asp-action="Create" asp-route-postId="@Model.Id"
+                       class="btn btn-sm btn-outline-danger me-2 custom-red" title="Báo cáo vi phạm">
+                        <i class="fas fa-flag"></i>
+                    </a>
+
+                    @if (User.Identity.IsAuthenticated && UserManager.GetUserId(User) == Model.UserId)
+                    {
+                        <a href="/Posts/Edit/@Model.Id" class="btn btn-sm btn-outline-warning">Chỉnh sửa</a>
+                        <a href="/Posts/Delete/@Model.Id" class="btn btn-sm btn-outline-danger">Xóa</a>
+                    }
+                    
                 </div>
             </div>
 

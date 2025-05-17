@@ -313,3 +313,12 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+@if (User.IsInRole("Admin"))
+{
+    <li class="nav-item">
+        <a class="nav-link text-danger fw-bold" href="/Admin/Dashboard">
+            🛠️ Quản trị
+        </a>
+    </li>
+}

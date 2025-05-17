@@ -9,12 +9,16 @@
 
   <ItemGroup>
     <Compile Remove="Views\Dashboard\**" />
+    <Compile Remove="wwwroot\avatars\**" />
     <Compile Remove="wwwroot\uploads\comment_videos\**" />
     <Content Remove="Views\Dashboard\**" />
+    <Content Remove="wwwroot\avatars\**" />
     <Content Remove="wwwroot\uploads\comment_videos\**" />
     <EmbeddedResource Remove="Views\Dashboard\**" />
+    <EmbeddedResource Remove="wwwroot\avatars\**" />
     <EmbeddedResource Remove="wwwroot\uploads\comment_videos\**" />
     <None Remove="Views\Dashboard\**" />
+    <None Remove="wwwroot\avatars\**" />
     <None Remove="wwwroot\uploads\comment_videos\**" />
   </ItemGroup>
 
@@ -29,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\avatars\" />
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 

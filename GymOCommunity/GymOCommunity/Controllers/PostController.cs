@@ -38,16 +38,30 @@ namespace GymOCommunity.Controllers
             _logger = logger;
         }
 
+
         [AllowAnonymous]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var posts = _context.Posts.ToList();
-            var viewModel = new PostListViewModel
-            {
-                Posts = posts
-            };
-            return View(viewModel);
+            var posts = await _context.Posts
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new PostViewModel
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    Description = p.Description,
+                    ImageUrl = p.ImageUrl,
+                    CreatedAt = p.CreatedAt,
+                    UserId = p.UserId,
+                    UserName = _context.Users
+                        .Where(u => u.Id == p.UserId)
+                        .Select(u => u.UserName)
+                        .FirstOrDefault() ?? "Ẩn danh"
+                })
+                .ToListAsync();
+
+            return View(new PostListViewModel { Posts = posts });
         }
+
 
         [AllowAnonymous]
         public IActionResult Details(int id)

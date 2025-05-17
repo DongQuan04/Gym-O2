@@ -5,6 +5,6 @@
 
     public class PostListViewModel
     {
-        public List<Post> Posts { get; set; }
+        public List<PostViewModel> Posts { get; set; } = new();
     }
 }

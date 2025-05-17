@@ -37,7 +37,7 @@ builder.Services.Configure<IISServerOptions>(options =>
     options.MaxRequestBodySize = 100 * 1024 * 1024;
 });
 
-// (sửa lỗi redirect sai URL Login)
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login";
@@ -64,8 +64,25 @@ else
 app.UseStaticFiles();
 app.UseRouting();
 
+// Middleware chuyển hướng nếu truy cập nhầm /Identity/Home
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value?.ToLower();
+    if (!string.IsNullOrEmpty(path) && path.Contains("/identity/home"))
+    {
+        context.Response.Redirect("/Home"); // hoặc "/"
+        return;
+    }
+    await next();
+});
+
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
