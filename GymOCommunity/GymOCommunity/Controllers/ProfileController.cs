@@ -30,11 +30,22 @@ namespace GymOCommunity.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
 
+            // Bài viết gốc
             var posts = await _context.Posts
                 .Include(p => p.PostImages)
                 .Include(p => p.PostVideos)
                 .Where(p => p.UserId == userId)
                 .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            // Bài viết chia sẻ
+            var sharedPosts = await _context.SharedPosts
+                .Include(sp => sp.OriginalPost)
+                    .ThenInclude(p => p.PostImages)
+                .Include(sp => sp.OriginalPost)
+                    .ThenInclude(p => p.PostVideos)
+                .Where(sp => sp.UserId == userId)
+                .OrderByDescending(sp => sp.SharedAt)
                 .ToListAsync();
 
             var userProfile = await _context.UserProfiles
@@ -45,6 +56,7 @@ namespace GymOCommunity.Controllers
                 User = user,
                 Email = user.Email,
                 Posts = posts,
+                SharedPosts = sharedPosts, // 👈 Thêm vào đây
                 FullName = userProfile?.FullName ?? user.UserName,
                 Bio = userProfile?.Bio,
                 AvatarUrl = userProfile?.AvatarUrl,
@@ -54,6 +66,7 @@ namespace GymOCommunity.Controllers
 
             return View(viewModel);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Edit()

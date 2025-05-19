@@ -16,6 +16,7 @@ namespace GymOCommunity.ViewModels
         public string Bio { get; set; }
         public string Website { get; set; }
         public string Location { get; set; }
+        public List<SharedPost> SharedPosts { get; set; }
 
     }
 }

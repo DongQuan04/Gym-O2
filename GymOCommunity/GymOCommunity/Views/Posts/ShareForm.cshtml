@@ -1,0 +1,35 @@
+﻿@model GymOCommunity.Models.ViewModels.SharePostViewModel
+
+@{
+    ViewData["Title"] = "Chia sẻ bài viết";
+}
+
+<h2 class="text-primary mb-4">🔁 Chia sẻ bài viết</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5>@Model.Title</h5>
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="Hình ảnh bài viết" class="img-fluid rounded mb-2" />
+        }
+        <p class="text-muted">Tác giả: @Model.AuthorName • @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
+    </div>
+</div>
+
+<form asp-action="Share" method="post">
+    <input type="hidden" asp-for="OriginalPostId" />
+
+    <div class="form-group mb-3">
+        <label asp-for="Note"></label>
+        <textarea asp-for="Note" class="form-control" rows="4" placeholder="Bạn nghĩ gì về bài viết này?"></textarea>
+        <span asp-validation-for="Note" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">📤 Chia sẻ</button>
+    <a asp-action="Index" asp-controller="Posts" class="btn btn-secondary">Hủy</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

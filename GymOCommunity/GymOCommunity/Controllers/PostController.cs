@@ -79,6 +79,65 @@ namespace GymOCommunity.Controllers
             return View(post);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Share(int id)
+        {
+            var post = await _context.Posts
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (post == null)
+                return NotFound();
+
+            // Lấy thông tin user từ UserManager
+            var user = await _userManager.FindByIdAsync(post.UserId);
+            var userName = user?.UserName ?? "Ẩn danh";
+
+            var model = new SharePostViewModel
+            {
+                OriginalPostId = post.Id,
+                Title = post.Title,
+                Description = post.Description,
+                ImageUrl = post.ImageUrl,
+                AuthorName = userName, // Sử dụng username đã lấy được
+                CreatedAt = post.CreatedAt
+            };
+
+            return View("ShareForm", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Share(SharePostViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Log lỗi chi tiết để debug
+                foreach (var err in ModelState)
+                {
+                    Console.WriteLine($"{err.Key}: {string.Join(", ", err.Value.Errors.Select(e => e.ErrorMessage))}");
+                }
+                return View("ShareForm", model);
+            }
+
+            var post = await _context.Posts.FindAsync(model.OriginalPostId);
+            if (post == null) return NotFound();
+
+            var sharedPost = new SharedPost
+            {
+                OriginalPostId = model.OriginalPostId,
+                UserId = _userManager.GetUserId(User),
+                SharedAt = DateTime.UtcNow,
+                Note = model.Note
+            };
+
+            _context.SharedPosts.Add(sharedPost);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Profile", new { userId = sharedPost.UserId });
+        }
+
+
+
         public IActionResult Create()
         {
             return View();

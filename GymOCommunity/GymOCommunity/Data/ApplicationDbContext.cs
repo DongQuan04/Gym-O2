@@ -18,6 +18,8 @@ namespace GymOCommunity.Data
         public DbSet<PostVideo> PostVideos { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<WorkoutLog> WorkoutLogs { get; set; }
+        public DbSet<SharedPost> SharedPosts { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

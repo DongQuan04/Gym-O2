@@ -34,34 +34,32 @@
     </div>
 
     <!-- Bài viết đã chia sẻ -->
-    <h4 class="mb-3">Bài viết đã chia sẻ (@Model.Posts.Count)</h4>
-
-    @if (Model.Posts != null && Model.Posts.Any())
+    @if (Model.SharedPosts != null && Model.SharedPosts.Any())
     {
-        <div class="row">
-            @foreach (var post in Model.Posts)
-            {
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        @if (!string.IsNullOrEmpty(post.ImageUrl))
-                        {
-                            <img src="@post.ImageUrl" class="card-img-top" alt="Ảnh bài viết" style="height: 200px; object-fit: cover;" />
-                        }
-                        <div class="card-body">
-                            <h5 class="card-title">@post.Title</h5>
-                            <p class="card-text">@post.Content</p>
-                            <small class="text-muted">@post.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            <a href="@Url.Action("Details", "Posts", new { id = post.Id })" class="btn btn-sm btn-outline-primary">
-                                Xem chi tiết
-                            </a>
-                        </div>
-                    </div>
+        <h4 class="mt-4 text-info">📤 Bài viết đã chia sẻ</h4>
+        @foreach (var shared in Model.SharedPosts)
+        {
+            var p = shared.OriginalPost;
+            if (p == null) continue;
+
+            <div class="card mb-3 border border-primary">
+                <div class="card-body">
+                    <h5 class="card-title">@p.Title</h5>
+                    @if (!string.IsNullOrEmpty(p.ImageUrl))
+                    {
+                        <img src="@p.ImageUrl" class="img-fluid rounded mb-2" />
+                    }
+                    <p class="text-muted">Chia sẻ lúc: @shared.SharedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                    @if (!string.IsNullOrEmpty(shared.Note))
+                    {
+                        <p><strong>Lời nhắn:</strong> @shared.Note</p>
+                    }
+                    <a href="/Posts/Details/@p.Id" class="btn btn-outline-primary btn-sm">Xem bài gốc</a>
                 </div>
-            }
-        </div>
+            </div>
+        }
     }
+
     else
     {
         <div class="alert alert-info">
