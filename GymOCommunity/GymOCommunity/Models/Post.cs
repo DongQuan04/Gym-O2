@@ -17,7 +17,7 @@ namespace GymOCommunity.Models
         [Required(ErrorMessage = "Nội dung không được để trống")]
         public string Content { get; set; }
 
-        public string? ImageUrl { get; set; } // Đường dẫn ảnh trong server
+        public string? ImageUrl { get; set; } // Đường dẫn ảnh 
 
         [NotMapped] 
       

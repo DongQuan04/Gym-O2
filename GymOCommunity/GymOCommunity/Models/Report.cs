@@ -10,7 +10,7 @@ namespace GymOCommunity.Models
 
         public int PostId { get; set; }
 
-        public DateTime ReportedAt { get; set; } = DateTime.UtcNow;
+        public DateTime ReportedAt { get; set; } 
 
         public Post? Post { get; set; }  // ← Navigation property cần thiết
     }

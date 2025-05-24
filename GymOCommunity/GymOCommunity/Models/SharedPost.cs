@@ -22,7 +22,7 @@ namespace GymOCommunity.Models
         [ForeignKey("UserId")]
         public IdentityUser User { get; set; }
 
-        public DateTime SharedAt { get; set; } = DateTime.UtcNow;
+        public DateTime SharedAt { get; set; } 
 
         public string? Note { get; set; } // Ghi chú khi chia sẻ lại
     }

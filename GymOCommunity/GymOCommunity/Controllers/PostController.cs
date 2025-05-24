@@ -111,7 +111,7 @@ namespace GymOCommunity.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Log lỗi chi tiết để debug
+                // Log catch exception để debug
                 foreach (var err in ModelState)
                 {
                     Console.WriteLine($"{err.Key}: {string.Join(", ", err.Value.Errors.Select(e => e.ErrorMessage))}");
