@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using GymOCommunity.Data;
 using GymOCommunity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using GymOCommunity.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-
+//Thông báo 
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddSignalR();
 
 // Cấu hình Email
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
@@ -89,6 +92,8 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+app.MapHub<GymOCommunity.Hubs.NotificationHub>("/notificationHub");
+
 
 // Rold Admin
 using (var scope = app.Services.CreateScope())

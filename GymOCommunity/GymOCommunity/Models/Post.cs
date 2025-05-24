@@ -50,5 +50,7 @@ namespace GymOCommunity.Models
 
         public string? Description { get; set; }
 
+        public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
     }
 }

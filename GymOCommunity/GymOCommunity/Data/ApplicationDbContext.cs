@@ -20,6 +20,8 @@ namespace GymOCommunity.Data
         public DbSet<WorkoutLog> WorkoutLogs { get; set; }
         public DbSet<SharedPost> SharedPosts { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,6 +60,13 @@ namespace GymOCommunity.Data
                 .Property(r => r.ReportedAt)
                 .HasColumnType("datetime2")
                 .HasDefaultValueSql("GETUTCDATE()");
+
+            // Cấu hình xóa Notification khi Post bị xóa
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.Post)
+                .WithMany(p => p.Notifications)
+                .HasForeignKey(n => n.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }

@@ -1,10 +1,12 @@
 ﻿using GymOCommunity.Data;
 using GymOCommunity.Models;
 using GymOCommunity.Models.ViewModels;
+using GymOCommunity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Diagnostics;
@@ -23,21 +25,23 @@ namespace GymOCommunity.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly INotificationService _notificationService;
 
         public PostsController(
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
             UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ILogger<PostsController> logger)
+            ILogger<PostsController> logger,
+            INotificationService notificationService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
             _roleManager = roleManager;
             _logger = logger;
+            _notificationService = notificationService;
         }
-
 
         [AllowAnonymous]
         public async Task<IActionResult> Index()
@@ -61,7 +65,6 @@ namespace GymOCommunity.Controllers
 
             return View(new PostListViewModel { Posts = posts });
         }
-
 
         [AllowAnonymous]
         public IActionResult Details(int id)
@@ -88,7 +91,6 @@ namespace GymOCommunity.Controllers
             if (post == null)
                 return NotFound();
 
-            // Lấy thông tin user từ UserManager
             var user = await _userManager.FindByIdAsync(post.UserId);
             var userName = user?.UserName ?? "Ẩn danh";
 
@@ -98,7 +100,7 @@ namespace GymOCommunity.Controllers
                 Title = post.Title,
                 Description = post.Description,
                 ImageUrl = post.ImageUrl,
-                AuthorName = userName, // Sử dụng username đã lấy được
+                AuthorName = userName,
                 CreatedAt = post.CreatedAt
             };
 
@@ -111,7 +113,6 @@ namespace GymOCommunity.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Log catch exception để debug
                 foreach (var err in ModelState)
                 {
                     Console.WriteLine($"{err.Key}: {string.Join(", ", err.Value.Errors.Select(e => e.ErrorMessage))}");
@@ -122,10 +123,11 @@ namespace GymOCommunity.Controllers
             var post = await _context.Posts.FindAsync(model.OriginalPostId);
             if (post == null) return NotFound();
 
+            var currentUserId = _userManager.GetUserId(User);
             var sharedPost = new SharedPost
             {
                 OriginalPostId = model.OriginalPostId,
-                UserId = _userManager.GetUserId(User),
+                UserId = currentUserId,
                 SharedAt = DateTime.UtcNow,
                 Note = model.Note
             };
@@ -133,35 +135,23 @@ namespace GymOCommunity.Controllers
             _context.SharedPosts.Add(sharedPost);
             await _context.SaveChangesAsync();
 
+            // Gửi thông báo khi share bài viết (trừ trường hợp tự share)
+            if (post.UserId != currentUserId)
+            {
+                await _notificationService.CreateNotification(
+                    userId: post.UserId,
+                    triggerUserId: currentUserId,
+                    type: NotificationType.Share,
+                    postId: post.Id,
+                    message: $"đã chia sẻ bài viết của bạn: {post.Title.Truncate(30)}");
+            }
+
             return RedirectToAction("Index", "Profile", new { userId = sharedPost.UserId });
         }
-
-
 
         public IActionResult Create()
         {
             return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> LikeComment(int id)
-        {
-            var comment = await _context.Comments.FindAsync(id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
-
-            comment.Likes++;
-            await _context.SaveChangesAsync();
-
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                return Json(new { newLikeCount = comment.Likes });
-            }
-
-            return RedirectToAction("Details", "Posts", new { id = comment.PostId });
         }
 
         [HttpPost]
@@ -179,7 +169,6 @@ namespace GymOCommunity.Controllers
             string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
             Directory.CreateDirectory(uploadsFolder);
 
-            // Ảnh đại diện
             if (post.ImageFile != null && post.ImageFile.Length > 0)
             {
                 string uniqueFileName = Guid.NewGuid() + "_" + Path.GetFileName(post.ImageFile.FileName);
@@ -246,6 +235,128 @@ namespace GymOCommunity.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Profile", new { userId = post.UserId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LikeComment(int id)
+        {
+            var comment = await _context.Comments
+                .Include(c => c.Post)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (comment == null) return NotFound();
+
+            comment.Likes++;
+            await _context.SaveChangesAsync();
+
+            // Gửi thông báo khi like comment (trừ trường hợp tự like)
+            if (comment.UserId != _userManager.GetUserId(User))
+            {
+                await _notificationService.CreateNotification(
+                    userId: comment.UserId,
+                    triggerUserId: _userManager.GetUserId(User),
+                    type: NotificationType.Like,
+                    postId: comment.PostId,
+                    message: $"đã thích bình luận của bạn: {comment.Content.Truncate(30)}");
+            }
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { newLikeCount = comment.Likes });
+            }
+
+            return RedirectToAction("Details", "Posts", new { id = comment.PostId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(100 * 1024 * 1024)] // 100MB
+        public async Task<IActionResult> AddComment(int postId, string content, int? parentCommentId = null, IFormFile videoFile = null)
+        {
+            try
+            {
+                var post = await _context.Posts.FindAsync(postId);
+                if (post == null) return NotFound();
+
+                // Validate video size
+                if (videoFile != null && videoFile.Length > 50 * 1024 * 1024) // 50MB
+                {
+                    TempData["ErrorMessage"] = "Video không được vượt quá 50MB";
+                    return RedirectToAction("Details", new { id = postId });
+                }
+
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var comment = new Comment
+                {
+                    Content = content,
+                    PostId = postId,
+                    ParentCommentId = parentCommentId,
+                    UserId = currentUserId,
+                    UserName = User.Identity?.Name,
+                    CreatedAt = DateTime.Now
+                };
+
+                // Xử lý upload video
+                if (videoFile != null && videoFile.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "comment_videos");
+
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(videoFile.FileName)}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await videoFile.CopyToAsync(fileStream);
+                    }
+
+                    comment.VideoUrl = $"/uploads/comment_videos/{uniqueFileName}";
+                }
+
+                _context.Comments.Add(comment);
+                await _context.SaveChangesAsync();
+
+                // Gửi thông báo khi comment (trừ trường hợp tự comment)
+                if (post.UserId != currentUserId)
+                {
+                    await _notificationService.CreateNotification(
+                        userId: post.UserId,
+                        triggerUserId: currentUserId,
+                        type: NotificationType.Comment,
+                        postId: postId,
+                        message: $"đã bình luận về bài viết của bạn: {content.Truncate(30)}");
+                }
+
+                // Nếu là reply comment, gửi thông báo cho chủ comment gốc
+                if (parentCommentId.HasValue)
+                {
+                    var parentComment = await _context.Comments
+                        .FirstOrDefaultAsync(c => c.Id == parentCommentId.Value);
+
+                    if (parentComment != null && parentComment.UserId != currentUserId)
+                    {
+                        await _notificationService.CreateNotification(
+                            userId: parentComment.UserId,
+                            triggerUserId: currentUserId,
+                            type: NotificationType.Comment,
+                            postId: postId,
+                            message: $"đã trả lời bình luận của bạn: {content.Truncate(30)}");
+                    }
+                }
+
+                return RedirectToAction("Details", new { id = postId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi thêm bình luận có video");
+                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi gửi bình luận";
+                return RedirectToAction("Details", new { id = postId });
+            }
         }
 
         public IActionResult Edit(int id)
@@ -374,67 +485,6 @@ namespace GymOCommunity.Controllers
             }
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [RequestSizeLimit(100 * 1024 * 1024)] // Giới hạn 100MB cho request
-        public async Task<IActionResult> AddComment(int postId, string content, int? parentCommentId = null, IFormFile videoFile = null)
-        {
-            try
-            {
-                var post = await _context.Posts.FindAsync(postId);
-                if (post == null) return NotFound();
-
-                // Validate video size
-                if (videoFile != null && videoFile.Length > 50 * 1024 * 1024) // 50MB
-                {
-                    TempData["ErrorMessage"] = "Video không được vượt quá 50MB";
-                    return RedirectToAction("Details", new { id = postId });
-                }
-
-                var comment = new Comment
-                {
-                    Content = content,
-                    PostId = postId,
-                    ParentCommentId = parentCommentId,
-                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-                    UserName = User.Identity?.Name,
-                    CreatedAt = DateTime.Now
-                };
-
-                // Xử lý upload video
-                if (videoFile != null && videoFile.Length > 0)
-                {
-                    var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "comment_videos");
-
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
-
-                    var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(videoFile.FileName)}";
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await videoFile.CopyToAsync(fileStream);
-                    }
-
-                    comment.VideoUrl = $"/uploads/comment_videos/{uniqueFileName}";
-                }
-
-                _context.Comments.Add(comment);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Details", new { id = postId });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi khi thêm bình luận có video");
-                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi gửi bình luận";
-                return RedirectToAction("Details", new { id = postId });
-            }
-        }
-
         private bool IsAuthorized(string postOwnerId)
         {
             var currentUserId = _userManager.GetUserId(User);
@@ -442,17 +492,26 @@ namespace GymOCommunity.Controllers
             return isAdmin || postOwnerId == currentUserId;
         }
     }
-}
 
-public static class FormFileExtensions
-{
-    public static IEnumerable<IFormFile> Where(this IFormFileCollection formFiles, Func<IFormFile, bool> predicate)
+    public static class StringExtensions
     {
-        foreach (var file in formFiles)
+        public static string Truncate(this string value, int maxLength)
         {
-            if (predicate(file))
+            if (string.IsNullOrEmpty(value)) return value;
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...";
+        }
+    }
+
+    public static class FormFileExtensions
+    {
+        public static IEnumerable<IFormFile> Where(this IFormFileCollection formFiles, Func<IFormFile, bool> predicate)
+        {
+            foreach (var file in formFiles)
             {
-                yield return file;
+                if (predicate(file))
+                {
+                    yield return file;
+                }
             }
         }
     }

@@ -68,6 +68,48 @@ namespace GymOCommunity.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("GymOCommunity.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TriggerUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("TriggerUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("GymOCommunity.Models.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -517,6 +559,30 @@ namespace GymOCommunity.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GymOCommunity.Models.Notification", b =>
+                {
+                    b.HasOne("GymOCommunity.Models.Post", "Post")
+                        .WithMany("Notifications")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "TriggerUser")
+                        .WithMany()
+                        .HasForeignKey("TriggerUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Post");
+
+                    b.Navigation("TriggerUser");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("GymOCommunity.Models.PostImage", b =>
                 {
                     b.HasOne("GymOCommunity.Models.Post", "Post")
@@ -643,6 +709,8 @@ namespace GymOCommunity.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Images");
+
+                    b.Navigation("Notifications");
 
                     b.Navigation("PostImages");
 
