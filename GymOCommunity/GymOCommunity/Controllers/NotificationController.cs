@@ -42,6 +42,7 @@ namespace GymOCommunity.Controllers
             return Content(count.ToString());
         }
 
+
         [HttpPost]
         public async Task<IActionResult> MarkAsRead(int id)
         {

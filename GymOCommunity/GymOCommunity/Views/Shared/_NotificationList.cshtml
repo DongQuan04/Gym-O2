@@ -4,17 +4,19 @@
 {
     foreach (var notification in Model)
     {
-        <div class="notification-item @(!notification.IsRead ? "unread" : "")" onclick="markAsRead(@notification.Id, this)">
-            <img src="/images/default-avatar.jpg" class="notification-avatar" />
-            <div class="notification-content">
-                <div>
-                    <strong>@notification.TriggerUser.UserName</strong> @notification.Message
-                </div>
-                <div class="notification-time">
-                    @notification.CreatedAt.ToString("HH:mm dd/MM")
+        <a href="@GetNotificationLink(notification)" class="text-decoration-none text-dark" onclick="markAsReadAndRedirect(@notification.Id, event)">
+            <div class="notification-item @(!notification.IsRead ? "unread" : "")">
+                <img src="/images/default-avatar.jpg" class="notification-avatar" />
+                <div class="notification-content">
+                    <div>
+                        <strong>@notification.TriggerUser.UserName</strong> @notification.Message
+                    </div>
+                    <div class="notification-time">
+                        @notification.CreatedAt.ToString("HH:mm dd/MM")
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     }
 }
 else
@@ -24,11 +26,34 @@ else
     </div>
 }
 
+@functions {
+    public string GetNotificationLink(Notification notification)
+    {
+        if (notification.PostId.HasValue)
+        {
+            // Kiểm tra loại thông báo để xác định có cần scroll đến comment không
+            return notification.Type == NotificationType.Comment 
+                ? $"/Posts/Details/{notification.PostId}#comment-section"
+                : $"/Posts/Details/{notification.PostId}";
+        }
+        return "#";
+    }
+}
+
 <script>
-    function markAsRead(id, element) {
+    function markAsReadAndRedirect(id, event) {
+        event.preventDefault(); // Ngăn chuyển hướng mặc định
+        const link = $(event.currentTarget).attr('href');
+        
+        // Đánh dấu đã đọc
         $.post('/Notification/MarkAsRead', { id: id }, function() {
-            $(element).removeClass('unread');
+            $('.notification-item[data-id="' + id + '"]').removeClass('unread');
             updateNotificationBadge();
+            
+            // Chuyển hướng sau khi đánh dấu đã đọc
+            if (link && link !== '#') {
+                window.location.href = link;
+            }
         });
     }
 </script>

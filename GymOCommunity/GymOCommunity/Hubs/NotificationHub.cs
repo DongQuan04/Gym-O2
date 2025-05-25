@@ -25,5 +25,6 @@ namespace GymOCommunity.Hubs
 
             await base.OnDisconnectedAsync(exception);
         }
+
     }
 }
