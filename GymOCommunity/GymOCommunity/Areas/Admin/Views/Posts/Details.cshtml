@@ -1,0 +1,67 @@
+﻿@model GymOCommunity.Models.Post
+
+@{
+    ViewData["Title"] = "Chi tiết bài viết";
+}
+
+<!-- Fancybox CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fancyapps/ui/dist/fancybox.css" />
+
+<!-- Fancybox JS -->
+<script src="https://cdn.jsdelivr.net/npm/@@fancyapps/ui/dist/fancybox.umd.js"></script>
+
+
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 rounded">
+        <h2 class="mb-3">@Model.Title</h2>
+        <div class="text-muted mb-2">
+            <strong>Người đăng:</strong> @(Model.User?.UserName ?? Model.User?.Email ?? "Không xác định") &nbsp;|&nbsp;
+            <strong>Ngày đăng:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+        </div>
+
+        <div class="mb-4">
+            <h5>Nội dung bài viết</h5>
+            <div class="border rounded p-3" style="background-color: #f8f9fa; color: #212529;">
+                @Html.Raw(Model.Content)
+            </div>
+        </div>
+
+        @if (Model.PostImages != null && Model.PostImages.Any())
+        {
+            <div class="mb-4">
+                <h5>Hình ảnh</h5>
+                <div class="row">
+                    @foreach (var image in Model.PostImages)
+                    {
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <a data-fancybox="gallery" href="@image.ImageUrl" data-caption="Hình ảnh">
+                                <img src="@image.ImageUrl" class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: cover;" />
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Model.PostVideos != null && Model.PostVideos.Any())
+        {
+            <div class="mb-4">
+                <h5>Video</h5>
+                <div class="row">
+                    @foreach (var video in Model.PostVideos)
+                    {
+                        <div class="col-md-6 mb-3">
+                            <video controls class="w-100 rounded shadow-sm" style="max-height: 320px;">
+                                <source src="@video.VideoUrl" type="video/mp4" />
+                                Trình duyệt của bạn không hỗ trợ thẻ video.
+                            </video>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <a asp-action="Index" class="btn btn-outline-secondary mt-3">← Quay lại danh sách</a>
+    </div>
+</div>

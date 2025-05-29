@@ -1,4 +1,6 @@
 ﻿@model IEnumerable<GymOCommunity.Models.Post>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "Quản lý bài viết";
 }
@@ -17,14 +19,21 @@
     <tbody>
         @foreach (var post in Model)
         {
+            var user = await UserManager.FindByIdAsync(post.UserId);
+            var userName = user?.Email ?? "Không xác định"; 
+
             <tr>
                 <td>@post.Title</td>
-                <td>@post.UserId</td>
+                <td>@userName</td>
                 <td>@post.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
                 <td>
+                    <a href="@Url.Action("Details", "Posts", new { id = post.Id })"
+                       class="btn btn-sm btn-primary me-2">
+                        👁️ Xem
+                    </a>
                     <a href="@Url.Action("Delete", "Posts", new { id = post.Id })"
                        class="btn btn-sm btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa bài này?');">
-                        Xóa
+                        🗑️ Xóa
                     </a>
                 </td>
             </tr>

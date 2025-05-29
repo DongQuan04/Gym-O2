@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Identity;
 
 namespace GymOCommunity.Models
 {
@@ -24,12 +25,13 @@ namespace GymOCommunity.Models
         public IFormFile? ImageFile { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public int? ViewCount { get; set; } = 0;
+
+        public bool IsFeatured { get; set; } = false;
 
 
         public string? UserId { get; set; }
 
-
-        // 🔹 Danh sách bình luận (Thêm vào đây)
         public List<Comment> Comments { get; set; } = new List<Comment>();
 
         public List<PostImage> Images { get; set; } = new List<PostImage>();
@@ -51,6 +53,8 @@ namespace GymOCommunity.Models
         public string? Description { get; set; }
 
         public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+        [ForeignKey("UserId")]
+        public virtual IdentityUser? User { get; set; }
 
     }
 }

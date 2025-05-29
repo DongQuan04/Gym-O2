@@ -19,10 +19,14 @@
             <tr>
                 <td>@user.Email</td>
                 <td>
-                    @(user.LockoutEnd != null && user.LockoutEnd > DateTime.UtcNow
-                        ? "<span class='badge bg-danger'>🔒 Đã khóa</span>"
-                        : "<span class='badge bg-success'>✅ Hoạt động</span>")
-                    @Html.Raw("") <!-- cần để render HTML -->
+                    @if (user.LockoutEnd != null && user.LockoutEnd > DateTime.UtcNow)
+                    {
+                        <span class="badge bg-danger">🔒 Đã khóa</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">✅ Hoạt động</span>
+                    }
                 </td>
                 <td class="text-center">
                     @if (user.LockoutEnd == null || user.LockoutEnd <= DateTime.UtcNow)
