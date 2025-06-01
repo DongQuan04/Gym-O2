@@ -9,7 +9,7 @@ namespace GymOCommunity.Models
         [Key]
         public int Id { get; set; }
 
-        public string? UserId { get; set; } // để liên kết với Identity User
+        public string? UserId { get; set; }
 
         [Required]
         public DateTime Date { get; set; }

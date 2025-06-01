@@ -1,5 +1,4 @@
-﻿// Areas/ViewModels/UserProfileViewModel.cs
-using GymOCommunity.Models;
+﻿using GymOCommunity.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace GymOCommunity.ViewModels
@@ -11,7 +10,7 @@ namespace GymOCommunity.ViewModels
         public string Id { get; set; }
         public string Email { get; set; }
         public string FullName { get; set; }
-        public string AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }
         public IFormFile AvatarFile { get; set; } // Avatar
         public string Bio { get; set; }
         public string Website { get; set; }

@@ -18,7 +18,7 @@ namespace GymOCommunity.ViewModels
         [StringLength(500, ErrorMessage = "Tiểu sử không được quá {1} ký tự.")]
         public string Bio { get; set; }
 
-        public string AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }
 
         public IFormFile AvatarFile { get; set; }
 

@@ -17,7 +17,7 @@ namespace GymOCommunity.Models
         [StringLength(500)]
         public string Bio { get; set; }
 
-        public string AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }
 
         [StringLength(100)]
         public string Location { get; set; }
