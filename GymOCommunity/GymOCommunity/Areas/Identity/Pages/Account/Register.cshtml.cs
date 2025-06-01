@@ -106,7 +106,7 @@ namespace GymOCommunity.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    // Gửi email với layout đẹp
+                    // Nội dung 
                     string body = $@"
                         <div style='font-family:Arial,sans-serif; max-width:600px; margin:auto; padding:20px; border:1px solid #ddd; border-radius:10px;'>
                             <h2 style='color:#2c3e50;'>Chào mừng đến với GymOCommunity! 💪</h2>

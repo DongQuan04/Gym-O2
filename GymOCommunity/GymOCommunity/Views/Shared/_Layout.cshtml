@@ -13,6 +13,7 @@
     @await RenderSectionAsync("Styles", required: false)
 
     <style>
+        /* Base styles */
         .navbar {
             transition: all 0.3s ease;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -38,7 +39,6 @@
                 position: absolute;
                 width: 0;
                 height: 2px;
-                background-color: #0d6efd;
                 bottom: 0;
                 left: 50%;
                 transform: translateX(-50%);
@@ -48,10 +48,6 @@
             .navbar-nav .nav-link:hover::after,
             .navbar-nav .nav-link.active::after {
                 width: 70%;
-            }
-
-            .navbar-nav .nav-link:hover {
-                color: #0d6efd !important;
             }
 
         .user-avatar {
@@ -92,12 +88,8 @@
             cursor: pointer;
         }
 
-            .notification-item:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-            }
-
             .notification-item.unread {
-                background-color: rgba(13, 110, 253, 0.1);
+                background-color: rgba(220, 53, 69, 0.1);
             }
 
         .notification-avatar {
@@ -114,7 +106,6 @@
 
         .notification-time {
             font-size: 0.8rem;
-            color: #6c757d;
         }
 
         #notificationBadge {
@@ -153,33 +144,7 @@
             }
         }
 
-        @@media (max-width: 992px) {
-            .navbar-collapse {
-                padding-top: 1rem;
-                background-color: rgba(33, 37, 41, 0.98);
-                border-radius: 0.5rem;
-                margin-top: 0.5rem;
-            }
-
-            .dropdown-menu {
-                background-color: rgba(33, 37, 41, 0.98);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-            }
-
-            .dropdown-item {
-                color: rgba(255, 255, 255, 0.7);
-            }
-
-                .dropdown-item:hover {
-                    color: #fff;
-                    background-color: rgba(255, 255, 255, 0.1);
-                }
-
-            .notification-dropdown {
-                width: 280px;
-            }
-        }
-
+        /* Theme toggle */
         #themeToggle {
             transition: all 0.3s ease;
             border-radius: 50%;
@@ -190,23 +155,43 @@
             justify-content: center;
         }
 
+        /* Footer */
         .footer-bottom {
-            background-color: #212529;
-            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        
+
+        /* Responsive styles */
+        @@media (max-width: 992px) {
+            .navbar-collapse {
+                padding-top: 1rem;
+                border-radius: 0.5rem;
+                margin-top: 0.5rem;
+            }
+
+            body.light-mode .navbar-collapse {
+                background-color: #ffffff;
+            }
+
+            body.dark-mode .navbar-collapse {
+                background-color: rgba(26, 26, 46, 0.98);
+            }
+
+            .notification-dropdown {
+                width: 280px;
+            }
         }
     </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 light-mode">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
-                <button id="themeToggle" class="btn btn-outline-light me-2 me-lg-3" title="Toggle theme">
-                    <span id="themeIcon">🌙</span>
-                </button>
 
                 <a class="navbar-brand d-flex align-items-center" href="@Url.Action("Index", "Home")">
                     <img src="~/images/logo5.png" width="40" height="40" class="me-2" alt="Logo" />
-                    <span class="fw-bold text-primary logo-text d-none d-sm-inline">Gym-O Community</span>
+                    <span class="fw-bold logo-text d-none d-sm-inline">Gym-O Community</span>
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
@@ -224,10 +209,10 @@
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Posts" ? "active" : "")"
                                href="@Url.Action("Index", "Posts")"><i class="fas fa-comments me-1"></i> Diễn đàn</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Nutrition" ? "active" : "")"
-                               asp-controller="Exercise" asp-action="Nutrition"><i class="fas fa-utensils me-1"></i> Dinh dưỡng</a>
-                        </li>
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Nutrition" ? "active" : "")"
+                           href="@Url.Action("Nutrition", "Exercise")">
+                            <i class="fas fa-utensils me-1"></i> Dinh dưỡng
+                        </a>
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Exercise" ? "active" : "")"
                                href="@Url.Action("Index", "Exercise")"><i class="fas fa-dumbbell me-1"></i> Bài tập</a>
@@ -272,7 +257,7 @@
                                     <li><h6 class="dropdown-header">Thông báo mới</h6></li>
                                     <div id="notificationList" class="px-2 py-1">
                                         <div class="text-center py-3">
-                                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                            <div class="spinner-border spinner-border-sm" role="status">
                                                 <span class="visually-hidden">Loading...</span>
                                             </div>
                                             <span class="ms-2">Đang tải thông báo...</span>
@@ -285,7 +270,7 @@
 
                             <!-- User Account Dropdown -->
                             <div class="dropdown">
-                                <a href="#" class="d-flex align-items-center text-light text-decoration-none dropdown-toggle"
+                                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
                                    id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-user-circle fa-lg me-1"></i>
                                     <span class="d-none d-lg-inline">Tài khoản</span>
@@ -336,9 +321,9 @@
             <p class="mb-0">
                 &copy; @DateTime.Now.Year - GymOCommunity. All rights reserved.
                 <span class="d-block d-sm-inline">
-                    <a href="#" class="text-white-50 mx-2">Điều khoản</a>
-                    <a href="#" class="text-white-50 mx-2">Bảo mật</a>
-                    <a href="#" class="text-white-50 mx-2">Liên hệ</a>
+                    <a href="#" class="mx-2">Điều khoản</a>
+                    <a href="#" class="mx-2">Bảo mật</a>
+                    <a href="#" class="mx-2">Liên hệ</a>
                 </span>
             </p>
         </div>
@@ -350,29 +335,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
     <script>
-        // Theme toggle
-        document.getElementById('themeToggle').addEventListener('click', function () {
-            const body = document.body;
-            const themeIcon = document.getElementById('themeIcon');
-            if (body.classList.contains('dark-mode')) {
-                body.classList.remove('dark-mode');
-                themeIcon.textContent = '🌙';
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.classList.add('dark-mode');
-                themeIcon.textContent = '☀️';
-                localStorage.setItem('theme', 'dark');
-            }
-        });
-
-        // Load saved theme
-        document.addEventListener('DOMContentLoaded', function () {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                document.getElementById('themeIcon').textContent = '☀️';
-            }
-        });
+        
 
         // Close navbar when clicking on nav links (mobile)
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -424,8 +387,6 @@
         });
 
         function showToastNotification(notification) {
-            // You can implement a toast notification here
-            // Example using Bootstrap toast:
             const toast = `
                 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
                     <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
