@@ -2,6 +2,7 @@
 using GymOCommunity.Models;
 using GymOCommunity.Models.ViewModels;
 using GymOCommunity.Services;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -65,6 +67,7 @@ namespace GymOCommunity.Controllers
 
             return View(new PostListViewModel { Posts = posts });
         }
+
 
         [AllowAnonymous]
         public IActionResult Details(int id)
