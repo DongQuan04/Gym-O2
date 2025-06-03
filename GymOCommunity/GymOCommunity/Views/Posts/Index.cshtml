@@ -1,12 +1,13 @@
 ﻿@model GymOCommunity.Models.ViewModels.PostListViewModel
-
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 
 <h2>Danh sách bài viết</h2>
 <a href="/Posts/Create" class="btn btn-primary">Tạo bài viết mới</a>
 
 <table class="table">
     <tr>
-        <th>Hình ảnh</th> 
+        <th>Hình ảnh</th>
         <th>Tiêu đề</th>
         <th>Ngày tạo</th>
         <th>Hành động</th>
@@ -27,9 +28,14 @@
             <td>@post.Title</td>
             <td>@post.CreatedAt.ToString("dd/MM/yyyy")</td>
             <td>
-                <a href="/Posts/Details/@post.Id" class="action-link">Xem</a> |
-                <a href="/Posts/Edit/@post.Id" class="action-link">Sửa</a> |
-                <a href="/Posts/Delete/@post.Id" class="action-link text-danger">Xóa</a>
+                <a href="/Posts/Details/@post.Id" class="action-link">Xem</a>
+                @if (User.Identity.IsAuthenticated && UserManager.GetUserId(User) == post.UserId)
+                {
+                    <text>|</text>
+                    <a href="/Posts/Edit/@post.Id" class="action-link">Sửa</a>
+                    <text>|</text>
+                    <a href="/Posts/Delete/@post.Id" class="action-link text-danger">Xóa</a>
+                }
             </td>
         </tr>
     }

@@ -3,40 +3,115 @@
     ViewData["Title"] = "Chỉnh sửa bài viết";
 }
 
-<h2 class="text-center mb-4">@ViewData["Title"]</h2>
+<div class="container py-4">
+    <h2 class="text-center mb-4 text-white">@ViewData["Title"]</h2>
 
-<form asp-action="Edit" enctype="multipart/form-data" class="p-4 shadow rounded bg-light" style="max-width: 600px; margin: auto;">
-    <input type="hidden" asp-for="Id" />
-    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+    <form asp-action="Edit" enctype="multipart/form-data" class="p-4 rounded bg-dark text-white" style="max-width: 600px; margin: auto; border: 1px solid #444;">
+        <input type="hidden" asp-for="Id" />
+        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
 
-    <div class="mb-3">
-        <label asp-for="Title" class="form-label fw-bold"></label>
-        <input asp-for="Title" class="form-control" aria-describedby="titleHelp" />
-        <span asp-validation-for="Title" class="text-danger small"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Content" class="form-label fw-bold"></label>
-        <textarea asp-for="Content" rows="6" class="form-control"></textarea>
-        <span asp-validation-for="Content" class="text-danger small"></span>
-    </div>
-
-    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
-    {
-        <div class="mb-3" id="currentImageContainer">
-            <label class="form-label fw-bold">Ảnh hiện tại:</label><br />
-            <img src="@Model.ImageUrl" alt="Ảnh bài viết" class="img-thumbnail mb-2" style="max-width: 300px;" id="currentImage" />
+        <div class="mb-4">
+            <label asp-for="Title" class="form-label fw-bold text-orange"></label>
+            <input asp-for="Title" class="form-control bg-secondary border-dark text-white" />
+            <span asp-validation-for="Title" class="text-danger small"></span>
         </div>
-    }
 
-    <div class="mb-3">
-        <label class="form-label fw-bold">Chọn ảnh mới (nếu muốn thay đổi):</label>
-        <input type="file" name="ImageFile" class="form-control" accept="image/*" />
-        <img id="previewImage" src="#" alt="Xem trước ảnh mới" class="img-thumbnail mt-2 d-none" style="max-width: 300px;" />
-    </div>
+        <div class="mb-4">
+            <label asp-for="Content" class="form-label fw-bold text-orange"></label>
+            <textarea asp-for="Content" rows="6" class="form-control bg-secondary border-dark text-white"></textarea>
+            <span asp-validation-for="Content" class="text-danger small"></span>
+        </div>
 
-    <button type="submit" class="btn btn-primary w-100">Lưu thay đổi</button>
-</form>
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <div class="mb-4" id="currentImageContainer">
+                <label class="form-label fw-bold text-orange">Ảnh hiện tại:</label><br />
+                <img src="@Model.ImageUrl" alt="Ảnh bài viết" class="img-thumbnail mb-2" style="max-width: 100%; height: auto; border-color: #444;" id="currentImage" />
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="RemoveImage" id="removeImage" value="true">
+                    <label class="form-check-label text-danger" for="removeImage">
+                        Xóa ảnh này
+                    </label>
+                </div>
+            </div>
+        }
+
+        <div class="mb-4">
+            <label class="form-label fw-bold text-orange">Chọn ảnh mới (nếu muốn thay đổi)</label>
+            <input type="file" name="ImageFile" class="form-control bg-secondary border-dark" accept="image/*" />
+            <img id="previewImage" src="#" alt="Xem trước ảnh mới" class="img-thumbnail mt-2 d-none" style="max-width: 100%; height: auto; border-color: #444;" />
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label fw-bold text-orange">Ảnh bổ sung (có thể chọn nhiều ảnh)</label>
+            <input type="file" name="AdditionalImages" class="form-control bg-secondary border-dark" accept="image/*" multiple />
+            <small class="text-muted">Giữ Ctrl để chọn nhiều ảnh</small>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label fw-bold text-orange">Video (có thể chọn nhiều)</label>
+            <input type="file" name="VideoFiles" class="form-control bg-secondary border-dark" accept="video/*" multiple />
+            <small class="text-muted">Tối đa 50MB mỗi video</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 fw-bold py-2" style="background-color: #ff5f15; border: none;">
+            <i class="fas fa-save me-2"></i> LƯU THAY ĐỔI
+        </button>
+    </form>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background-color: #1a1a2e;
+        }
+
+        .text-orange {
+            color: #ff5f15;
+        }
+
+        .bg-secondary {
+            background-color: #2a2a3a !important;
+        }
+
+        .form-control {
+            transition: all 0.3s;
+        }
+
+            .form-control:focus {
+                background-color: #333 !important;
+                border-color: #ff5f15 !important;
+                box-shadow: 0 0 0 0.25rem rgba(255, 95, 21, 0.25) !important;
+                color: white !important;
+            }
+
+        .img-thumbnail {
+            transition: transform 0.3s;
+        }
+
+            .img-thumbnail:hover {
+                transform: scale(1.02);
+            }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ff5f15;
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #e04b00;
+            }
+    </style>
+}
 
 @section Scripts {
     <script>
@@ -44,10 +119,10 @@
         const preview = document.getElementById('previewImage');
         const currentImage = document.getElementById('currentImage');
         const currentImageContainer = document.getElementById('currentImageContainer');
+        const removeImageCheckbox = document.getElementById('removeImage');
 
         imageInput.addEventListener('change', function (e) {
             const file = e.target.files[0];
-
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
@@ -64,8 +139,44 @@
             } else {
                 preview.src = "#";
                 preview.classList.add('d-none');
-                if (currentImageContainer) {
+                if (currentImageContainer && !removeImageCheckbox.checked) {
                     currentImageContainer.classList.remove('d-none');
+                }
+            }
+        });
+
+        // Handle remove image checkbox
+        if (removeImageCheckbox) {
+            removeImageCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    if (currentImageContainer) {
+                        currentImageContainer.classList.add('d-none');
+                    }
+                    if (preview) {
+                        preview.src = "#";
+                        preview.classList.add('d-none');
+                    }
+                    if (imageInput) {
+                        imageInput.value = '';
+                    }
+                } else {
+                    if (currentImageContainer) {
+                        currentImageContainer.classList.remove('d-none');
+                    }
+                }
+            });
+        }
+
+        // Validate video size
+        document.querySelector('input[name="VideoFiles"]').addEventListener('change', function() {
+            const maxSize = 50 * 1024 * 1024; // 50MB
+            const files = this.files;
+
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].size > maxSize) {
+                    alert(`Video "${files[i].name}" vượt quá 50MB. Vui lòng chọn video nhỏ hơn.`);
+                    this.value = '';
+                    break;
                 }
             }
         });

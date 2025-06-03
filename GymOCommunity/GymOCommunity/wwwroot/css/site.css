@@ -885,3 +885,19 @@ h2 {
         padding-left: 12px !important;
     }
 }
+
+/*Trang cá nhân*/
+.profile-avatar-placeholder {
+    font-weight: bold;
+    font-size: 14px;
+
+}
+
+.post-card img, .card img {
+    max-height: 300px;
+    object-fit: cover;
+}
+
+.btn-outline-secondary.text-white {
+    color: white !important;
+}

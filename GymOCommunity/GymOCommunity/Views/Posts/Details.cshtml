@@ -6,18 +6,24 @@
     <!-- Bài viết chính -->
     <div class="card mb-4 shadow-sm bg-dark text-light">
         <div class="card-body">
+            <p class="mb-1 text-light">
+                Đăng bởi: <span class="text-light fw-semibold">@Model.User.UserName</span>
+            </p>
 
             <h2 class="card-title">@Model.Title</h2>
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <small class="text-muted">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                <small class="text-light">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
 
                 <div class="action-buttons">
-                    <!-- Báo cáo -->
-                    <a asp-controller="Reports" asp-action="Create" asp-route-postId="@Model.Id"
-                       class="action-btn action-report" title="Báo cáo vi phạm">
-                        <i class="fas fa-flag"></i>
-                        <span>Báo cáo</span>
-                    </a>
+                    <!-- Báo cáo - chỉ hiện với người khác -->
+                    @if (User.Identity.IsAuthenticated && UserManager.GetUserId(User) != Model.UserId)
+                    {
+                        <a asp-controller="Reports" asp-action="Create" asp-route-postId="@Model.Id"
+                           class="action-btn action-report" title="Báo cáo vi phạm">
+                            <i class="fas fa-flag"></i>
+                            <span>Báo cáo</span>
+                        </a>
+                    }
 
                     @if (User.Identity.IsAuthenticated && UserManager.GetUserId(User) == Model.UserId)
                     {
@@ -31,10 +37,14 @@
                         </a>
                     }
 
-                    <a asp-action="Share" asp-route-id="@Model.Id" class="action-btn action-share">
-                        <i class="fas fa-share-alt"></i>
-                        <span>Chia sẻ</span>
-                    </a>
+                    <!-- Chia sẻ - chỉ hiện với người khác -->
+                    @if (User.Identity.IsAuthenticated && UserManager.GetUserId(User) != Model.UserId)
+                    {
+                        <a asp-action="Share" asp-route-id="@Model.Id" class="action-btn action-share">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Chia sẻ</span>
+                        </a>
+                    }
                 </div>
             </div>
 

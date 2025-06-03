@@ -73,6 +73,7 @@ namespace GymOCommunity.Controllers
         public IActionResult Details(int id)
         {
             var post = _context.Posts
+                .Include(p => p.User)
                 .Include(p => p.Comments)
                     .ThenInclude(c => c.User)
                 .Include(p => p.PostImages)
@@ -438,6 +439,7 @@ namespace GymOCommunity.Controllers
         public IActionResult Delete(int id)
         {
             var post = _context.Posts.Find(id);
+
             if (post == null)
                 return NotFound();
 

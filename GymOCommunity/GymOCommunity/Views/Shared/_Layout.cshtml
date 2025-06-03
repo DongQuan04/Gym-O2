@@ -13,7 +13,7 @@
     @await RenderSectionAsync("Styles", required: false)
 
     <style>
-        /* Base styles */
+        /* Giao diện trang chủ */
         .navbar {
             transition: all 0.3s ease;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -72,7 +72,7 @@
             margin-right: 8px;
         }
 
-        /* Notification styles */
+        /* thông báo màu mè */
         .notification-dropdown {
             width: 350px;
             max-height: 500px;
@@ -144,25 +144,11 @@
             }
         }
 
-        /* Theme toggle */
-        #themeToggle {
-            transition: all 0.3s ease;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         /* Footer */
         .footer-bottom {
             transition: all 0.3s ease;
-        }
-
         
-
-        /* Responsive styles */
+        /* Phản hồi */
         @@media (max-width: 992px) {
             .navbar-collapse {
                 padding-top: 1rem;
@@ -245,7 +231,7 @@
                     <div class="d-flex align-items-center auth-buttons">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <!-- Notification Dropdown -->
+                            <!-- thông báo  Dropdown -->
                             <div class="dropdown me-3">
                                 <a href="#" class="nav-link position-relative" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-bell"></i>
@@ -348,7 +334,7 @@
             });
         });
 
-        // Notification functions
+        // Các chức năng của thông báo 
         function loadNotifications() {
             $.get('/Notification/GetRecentNotifications', function(data) {
                 $('#notificationList').html(data);
@@ -367,7 +353,7 @@
             });
         }
 
-        // SignalR connection for real-time notifications
+        // SignalR cho phản hồi thòi gian thực
         const notificationConnection = new signalR.HubConnectionBuilder()
             .withUrl("/notificationHub")
             .build();
@@ -404,7 +390,7 @@
             setTimeout(() => $('.toast').remove(), 5000);
         }
 
-        // Start SignalR connection
+        // bắt đầu kết nối SignalR
         notificationConnection.start().then(function() {
             const userId = '@User.FindFirstValue(ClaimTypes.NameIdentifier)';
             if (userId) {

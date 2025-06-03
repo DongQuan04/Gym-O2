@@ -30,33 +30,38 @@ namespace GymOCommunity.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
 
-            // Bài viết gốc
+            // Load bài viết gốc + hình ảnh/video đính kèm
             var posts = await _context.Posts
                 .Include(p => p.PostImages)
                 .Include(p => p.PostVideos)
+                .Include(p => p.User)  // Load thông tin người đăng
                 .Where(p => p.UserId == userId)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
-            // Bài viết chia sẻ
+            // Load bài viết đã chia sẻ
             var sharedPosts = await _context.SharedPosts
                 .Include(sp => sp.OriginalPost)
                     .ThenInclude(p => p.PostImages)
                 .Include(sp => sp.OriginalPost)
                     .ThenInclude(p => p.PostVideos)
+                .Include(sp => sp.OriginalPost)
+                    .ThenInclude(p => p.User)  // Load thông tin người đăng bài gốc
                 .Where(sp => sp.UserId == userId)
                 .OrderByDescending(sp => sp.SharedAt)
                 .ToListAsync();
 
+            // Load thông tin profile
             var userProfile = await _context.UserProfiles
                 .FirstOrDefaultAsync(up => up.UserId == userId);
 
+            // Tạo ViewModel
             var viewModel = new UserProfileViewModel
             {
                 User = user,
                 Email = user.Email,
-                Posts = posts,
-                SharedPosts = sharedPosts, // 👈 Thêm vào đây
+                Posts = posts ?? new List<Post>(),  // Đảm bảo không null
+                SharedPosts = sharedPosts ?? new List<SharedPost>(),  // Đảm bảo không null
                 FullName = userProfile?.FullName ?? user.UserName,
                 Bio = userProfile?.Bio,
                 AvatarUrl = userProfile?.AvatarUrl,
@@ -140,7 +145,7 @@ namespace GymOCommunity.Controllers
                     userProfile.AvatarUrl = $"/uploads/avatars/{uniqueFileName}";
                 }
 
-                // Cập nhật các trường còn lại
+                // Cập nhật các trường
                 userProfile.FullName = model.FullName;
                 userProfile.Bio = model.Bio;
                 userProfile.Location = model.Location;
