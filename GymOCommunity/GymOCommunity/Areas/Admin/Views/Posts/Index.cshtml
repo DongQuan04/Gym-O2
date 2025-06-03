@@ -20,7 +20,7 @@
         @foreach (var post in Model)
         {
             var user = await UserManager.FindByIdAsync(post.UserId);
-            var userName = user?.Email ?? "Không xác định"; 
+            var userName = user?.Email ?? "Không xác định";
 
             <tr>
                 <td>@post.Title</td>
@@ -32,9 +32,10 @@
                         👁️ Xem
                     </a>
                     <a href="@Url.Action("Delete", "Posts", new { id = post.Id })"
-                       class="btn btn-sm btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa bài này?');">
+                       class="btn btn-sm btn-danger">
                         🗑️ Xóa
                     </a>
+
                 </td>
             </tr>
         }

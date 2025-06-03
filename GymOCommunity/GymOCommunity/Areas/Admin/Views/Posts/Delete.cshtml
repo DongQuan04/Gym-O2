@@ -1,0 +1,17 @@
+﻿@model GymOCommunity.Models.Post
+
+@{
+    ViewData["Title"] = "Xóa bài viết";
+}
+
+<h2 class="text-danger">🗑️ Xác nhận xóa bài viết</h2>
+
+<form asp-area="Admin" asp-controller="Posts" asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <p>Bạn có chắc chắn muốn xóa bài viết <strong>"@Model.Title"</strong>?</p>
+
+    <button type="submit" class="btn btn-danger">XÓA</button>
+
+    <a href="@Url.Action("Index", "Posts", new { area = "Admin" })" class="btn btn-secondary">HỦY</a>
+</form>

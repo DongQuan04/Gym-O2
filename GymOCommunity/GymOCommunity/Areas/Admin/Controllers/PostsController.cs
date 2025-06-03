@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using GymOCommunity.Models;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace GymOCommunity.Areas.Admin.Controllers
 {
@@ -25,7 +26,7 @@ namespace GymOCommunity.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var posts = await _context.Posts
-                .Include(p => p.User) // Load thông tin người dùng
+                .Include(p => p.User)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
@@ -41,8 +42,8 @@ namespace GymOCommunity.Areas.Admin.Controllers
             }
 
             var post = await _context.Posts
-                .Include(p => p.PostImages) // Load ảnh đính kèm
-                .Include(p => p.PostVideos) // Load video đính kèm
+                .Include(p => p.PostImages)
+                .Include(p => p.PostVideos)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (post == null)
@@ -50,27 +51,36 @@ namespace GymOCommunity.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            // Tăng lượt xem nếu cần
-            // post.ViewCount = (post.ViewCount ?? 0) + 1;
-            // await _context.SaveChangesAsync();
-
             return View(post);
         }
 
+        // GET: Admin/Posts/Delete/5
+        [HttpGet]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+                return BadRequest();
+
+            var post = await _context.Posts
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (post == null)
+                return NotFound();
+
+            return View(post); // Truyền model sang view xác nhận xoá
+        }
+
         // POST: Admin/Posts/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var post = await _context.Posts.FindAsync(id);
             if (post == null)
-            {
                 return NotFound();
-            }
 
             try
             {
-                // Xóa các media liên quan trước
                 var images = await _context.PostImages.Where(pi => pi.PostId == id).ToListAsync();
                 var videos = await _context.PostVideos.Where(pv => pv.PostId == id).ToListAsync();
 
@@ -82,16 +92,14 @@ namespace GymOCommunity.Areas.Admin.Controllers
 
                 TempData["SuccessMessage"] = "Bài viết đã được xóa thành công!";
             }
-            catch (DbUpdateException ex)
+            catch
             {
-                TempData["ErrorMessage"] = "Không thể xóa bài viết. Có thể có dữ liệu liên quan.";
-                // Log the error (uncomment ex variable name and write a log.)
+                TempData["ErrorMessage"] = "Lỗi khi xóa bài viết.";
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        // Thêm các action khác nếu cần
         [HttpPost]
         public async Task<IActionResult> ToggleFeatured(int id)
         {
